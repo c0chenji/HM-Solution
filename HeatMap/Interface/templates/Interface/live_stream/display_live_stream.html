@@ -1,0 +1,104 @@
+{% extends "Interface/base.html" %}
+{% load static %}
+{% block content %}
+
+
+<section >
+    <div class="row justify-content-center">
+        <div class="col-8">
+            <form id="myForm"  class="hide">{% csrf_token %}
+                <input type="text" value="" name="channelId" id="channelResponse">
+                <button id="btnId" type="submit">submit</button>
+            </form>
+            <div>
+                <p id="test" class="hide">hi</p>
+            </div>
+        
+            <form id="pauseForm" class="hide"  >{% csrf_token %}
+                <input type="text" value="" name="pauseChannelId" id="pauseResponse">
+                <button id="btnPauseId" type="submit">submit</button>
+            </form>
+            <div>
+                <p id="pauseTest"  class="hide">hello</p>
+            </div>
+        
+            <div class="row channel-section">
+                <div class="col-2" style=" height:500px;overflow:auto">
+                    {% for object in enabledChannels %}
+                    <div class="row carousel-sidebar" tabindex="0">
+                        <image name="test" value="{{object.id}}" src="livestream/{{object.id}}" id="{{object.id}}" onclick="streamFocus(this.id)"
+                            height="100%" width="100%"></image>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="col-10 d-flex justify-content-center">         
+                        <image id="streamDisplay" src="#" width="700px" height="500px" value="">
+                        </image>
+                        <canvas id="streamPause" class="hide" src="#" width="700px" height="500px" value="">
+                        </canvas>
+                </div>
+        
+            </div>
+        </div>
+    </div>
+    
+</section>
+
+<script>
+    $('#btnId').click(function (e) {
+        e.preventDefault();
+        $.ajax({
+            type: "POST",
+            url: "/displayLiveStream/",
+            data:{
+                channelId:$('#channelResponse').val(),
+                csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+            },
+            success: displayHelper($('#channelResponse').val()),
+        });
+    });
+    function displayHelper(x){
+        console.log("The something you log is "+x);
+        var source = "livestream/" + x;
+        // $('#streamDisplay').html();
+        $('#streamDisplay').attr("src",source);
+        // $('#steamDisplay').load
+        document.getElementById("test").innerHTML=x;
+    }
+
+
+
+    var sessionRecord;
+    sessionRecord = '{{request.session.tempId}}';
+    console.log('channel id in session is', sessionRecord);
+   
+    // var targetNode = "img"+"#"+sessionRecord;
+
+    var defaultChannel;
+    defaultChannel = '{{defaultChannel.id}}';
+    console.log('default id is ', defaultChannel);
+    // if (sessionRecord > 0) {
+    //     document.getElementById("streamDisplay").src = "livestream/" + sessionRecord;
+    //     console.log("currently loading session" + sessionRecord)
+    // }
+    // else {
+    document.getElementById("streamDisplay").src = "livestream/" + defaultChannel;
+    console.log("currently loading default" + defaultChannel)
+    // }
+
+    function streamFocus(id) {
+        
+        console.log("The id you are passing is ", id);
+        var streamId = id;
+        document.getElementById("streamDisplay").src = "livestream/" + streamId;
+        document.getElementById("channelResponse").value = id;
+        document.getElementById("pauseResponse").value = id;
+        document.getElementById("btnId").click();
+        
+
+    }
+    document.getElementById("recordBtn").classList.remove("redLight");
+    document.getElementById("recordBtn").classList.add("greenLight");
+    document.getElementById("displayBtn").classList.add("icon-btn-focus");
+</script>
+{%endblock%}

@@ -1,0 +1,33 @@
+{% extends "Interface/base.html" %}
+{% block content %}
+{% load i18n %}
+<div class="container">
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% get_current_language as LANGUAGE_CODE %}
+        {% if LANGUAGE_CODE == 'en' %}
+        <p>Are you sure you want to delete the channel: "{{ channels.id }}"</p>
+        {%else%}
+        <p>¿Está seguro que desea eliminar este canal "{{ channels.id }}" ? </p>
+        {%endif%}
+
+
+        <button class="btn btn-danger" type="submit">
+            {% if LANGUAGE_CODE == 'en' %}
+            Delete Channel
+            {%else%}
+            Eliminar Canal
+            {%endif%}
+
+        </button>
+        <a href="{% url 'Interface-channel' %}" class="btn btn-primary" type="button">
+
+            {% if LANGUAGE_CODE == 'en' %}
+            Cancel
+            {%else%}
+            Cancelar
+            {%endif%}
+        </a>
+    </form>
+</div>
+{% endblock content %}

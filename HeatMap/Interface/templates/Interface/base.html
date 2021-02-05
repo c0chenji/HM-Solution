@@ -1,0 +1,298 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+
+<head>
+
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- <meta http-equiv="x-ua-compatible" content="ie=edge"> -->
+  <!-- MDB -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.11.2/css/all.css">
+  <!-- Google Fonts Roboto -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
+  <!-- Bootstrap core CSS -->
+  <link rel="stylesheet" href="{% static '/MDB-Free/css/mdb.min.css' %}">
+  <!-- Material Design Bootstrap -->
+  <link rel="stylesheet" href="{% static '/MDB-Free/css/bootstrap.min.css' %}">
+
+
+  <!-- Bootstrap CSS -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+    integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <!--<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet">-->
+
+  <link rel="stylesheet" type="text/css" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+ 
+  <script type="text/javascript" src="{% static 'js/loadValidation.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/utils.js' %}"></script>
+  <script type="text/javascript" src="{% static 'js/myHeatMap.js' %}"></script>
+
+
+  <!-- {% if title %}
+  <title>Heat - {{ title }}</title>
+  {% else %}
+  <title>HeatMap</title>
+  {% endif %} -->
+</head>
+
+<body>
+  <header class="header">
+    <nav class="navbar navbar-expand-lg navbar-dark white-color">
+      <!-- <a class="navbar-brand" href="{% url 'Interface-front' %}">
+        <img src="{% static 'images/imgpsh_fullsize.png' %}">
+      </a> -->
+      <!-- <a class="navbar-brand font-weight-bold text-primary" href="{% url 'Interface-front' %}">
+        {% get_current_language as LANGUAGE_CODE %}
+        {% if LANGUAGE_CODE == 'en' %}
+        -HeatMap
+        {%else%}
+        Mapa de calor
+        {%endif%}
+      </a> -->
+
+     
+
+      <!-- {% get_current_language as LANGUAGE_CODE %}
+
+      {% if LANGUAGE_CODE == 'en' %}
+      <div>hello</div>
+      {%else%}
+      <div>hola</div>
+      {%endif%} -->
+      <!-- 
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button> -->
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          {% if user.is_authenticated %}
+          <li class="nav-item mr-4">
+            <h class="nav-link guest">V1.0.0</h>
+          </li>
+          <li class="nav-item mr-2">
+            <button class="nav-icon-btn" id="displayBtn" onclick="display()">
+              <i class="fa fa-play-circle-o"></i></button>
+          </li>
+          <li class="nav-item mr-2">
+            <button class="nav-icon-btn" id="pauseBtn" onclick="pause()">
+              <i class="fa fa-pause-circle-o"></i>
+            </button>
+          </li>
+
+          <li class="nav-item mr-2">
+            <button class="nav-icon-btn redLight" id="recordBtn"><i class="fa fa-circle"></i></button>
+          </li>
+          <li class="nav-item mr-2">
+            <button class="nav-icon-btn"><i class="fa fa-user"></i></button>
+          </li>
+          <!-- <li class="nav-item mr-2">
+            <h class="nav-link guest">
+              {% get_current_language as LANGUAGE_CODE %}
+
+              {% if LANGUAGE_CODE == 'en' %}
+              Hello
+              {%else%}
+              Hola
+              {%endif%}
+              {{user.username}}</h>
+          </li> -->
+          <!-- <li class="nav-item">
+            <img class="rounded-circle" src="{% static 'login.png' %}" />
+          </li> -->
+          <li class="nav-item">
+            <a class="btn btn-primary btn-sm" href="{% url 'logout'%}">
+              <i class="mr-2 fas fa-sign-out-alt"></i>
+              {% get_current_language as LANGUAGE_CODE %}
+              {% if LANGUAGE_CODE == 'en' %}
+              Logout
+              {%else%}
+              Cerrar sesión
+              {%endif%}
+            </a>
+          </li>
+          {% else %}
+          <li class="nav-item">
+            <!-- <a class="nav-link nav-style" href="{% url 'login' %}"> -->
+            <a class="btn btn-primary btn-sm" href="{% url 'login' %}">
+              <i class="mr-2 fas fa-sign-in-alt"></i>
+              {% get_current_language as LANGUAGE_CODE %}
+
+              {% if LANGUAGE_CODE == 'en' %}
+              Login
+              {%else%}
+              Iniciar sesión
+              {%endif%}
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+    </nav>
+  </header>
+  <div class="d-flex align-items-stretch">
+    {% if user.is_authenticated %}
+    <nav class="side-navbar" id="slide-out" >
+      <div class="sidebar-header d-flex align-items-center">
+        <div class="title">
+          <label for="">USER:</label>
+          <span style = "text-transform:capitalize;">
+            {{user.username}}
+          </span>
+          <!-- <label for="">Last Login:</label>
+          <p>{{user.last_login}}</p> -->
+        </div>
+      </div>
+      <ul class="list-unstyled">
+        <li>
+          <a href="{% url 'Interface-channel' %}" class="addFocus" id="channelTag" onclick="highlightChannel()">
+            <i class="ml-2 fas fa-th-list"></i>
+            &nbsp
+            {% get_current_language as LANGUAGE_CODE %}
+            {% if LANGUAGE_CODE == 'en' %}
+            Channel
+            {%else%}
+            Canales
+            {%endif%}
+          </a>
+        </li>
+        <li>
+          <a href="{% url 'Interface-heatmap' %}" id="heatmapTag" onclick="highlightHeatMap()">
+            <i class="ml-2 fas fa-map"></i>
+            &nbsp
+            {% get_current_language as LANGUAGE_CODE %}
+            {% if LANGUAGE_CODE == 'en' %}
+            HeatMap
+            {%else%}
+            Mapa de calor
+            {%endif%}
+          </a>
+        </li>
+      </ul>
+    </nav>
+    {% endif %}
+    <div class="content-inner">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <script>
+
+    var url = (window.location.href).split('/');
+    var pageName = url[url.length - 2];
+    console.log("current url is ", pageName);
+    console.log("current url is ", url[url.length - 1]);
+    if (pageName != "displayLiveStream") {
+      document.getElementById("pauseBtn").classList.add('disable-pause');
+      console.log("It is not live stream");
+    }
+    else {
+      document.getElementById("pauseBtn").classList.remove('disable-pause');
+    }
+
+    if (pageName == "channel") {
+      document.getElementById("channelTag").classList.add("addFocus");
+
+    }
+    else {
+      document.getElementById("channelTag").classList.remove("addFocus");
+    }
+
+    if (pageName == "heatmap") {
+      document.getElementById("heatmapTag").classList.add("addFocus");
+
+    }
+    else {
+      document.getElementById("heatmapTag").classList.remove("addFocus");
+    }
+    var pauseFlag = false;
+    var displayFlag = false;
+    function display() {
+      if (displayFlag === false && pauseFlag === false && pageName != "displayLiveStream") {
+        window.location.href = "{% url 'display-live-stream' %}";
+
+      }
+      else if (pauseFlag === true && pageName == "displayLiveStream") {
+
+        pauseFlag = false;
+        $("#streamPause").hide();
+        $("#streamDisplay").show();
+
+        document.getElementById("pauseBtn").classList.remove("icon-btn-focus");
+        document.getElementById("displayBtn").classList.add("icon-btn-focus");
+        document.getElementById("recordBtn").classList.remove("redLight");
+        document.getElementById("recordBtn").classList.add("greenLight");
+        //   console.log("pause status after click display", pauseFlag)
+      }
+    }
+    $('#btnPauseId').click(function (e) {
+      e.preventDefault();
+      $.ajax({
+        type: "POST",
+        url: "/displayLiveStream/",
+        data: {
+          pauseChannelId: $('#pauseResponse').val(),
+          csrfmiddlewaretoken: $('input[name=csrfmiddlewaretoken]').val()
+        },
+        success: pauseHelper($('#pauseResponse').val()),
+      });
+    });
+
+    function pauseHelper(x) {
+      console.log("pause log is " + x);
+      // var source = "livestream/" + x;
+      // $('#streamDisplay').html();
+      // $('#streamDisplay').attr("src",source);
+      // // $('#steamDisplay').load
+      document.getElementById("pauseTest").innerHTML = x;
+    }
+    function pause() {
+      // alert("current page is "+ window.location.href);
+      if (pauseFlag === false) {
+        $("#streamDisplay").hide();
+        $("#streamPause").show();
+
+        var canvas = document.getElementById("streamPause");
+        var ctx = canvas.getContext("2d");
+        var img = document.getElementById("streamDisplay")
+
+        document.getElementById("pauseBtn").classList.add("icon-btn-focus");
+        document.getElementById("displayBtn").classList.remove("icon-btn-focus");
+        document.getElementById("recordBtn").classList.remove("greenLight");
+        document.getElementById("recordBtn").classList.add("redLight");
+        document.getElementById("btnPauseId").click();
+        ctx.drawImage(img, 0, 0, 700, 500);
+        pauseFlag = true;
+        // //won't set up displayFlag on display() since it will redirect to new page
+        displayFlag = false;
+      }
+    }
+  </script>
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->`
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+    integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+    crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+    integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+    crossorigin="anonymous"></script>
+  <!-- jQuery -->
+  <script type="text/javascript" src="{% static 'MDB-Free/js/jquery.min.js' %}"></script>
+  <!-- Bootstrap tooltips -->
+  <script type="text/javascript" src="{% static 'MDB-Free/js/popper.min.js' %}"></script>
+  <!-- Bootstrap core JavaScript -->
+  <script type="text/javascript" src="{% static 'MDB-Free/js/bootstrap.min.js' %}"></script>
+  <!-- MDB core JavaScript -->
+  <script type="text/javascript" src="{% static 'MDB-Free/js/mdb.min.js' %}"></script>
+  
+  {% block extrascripts %}{% endblock %}
+
+</body>
+
+</html>

@@ -1,0 +1,191 @@
+{% extends "Interface/base.html" %}
+{% block content %}
+{% load i18n %}
+
+<section>
+  <div class="row justify-content-center">
+    <div class="col-5">
+      <form enctype="multipart/form-data" class="needs-validation" action="" name="edit" method="POST"
+        id="ChannelEditForm" novalidate>
+        {% csrf_token %}
+        {% get_current_language as LANGUAGE_CODE %}
+
+        <div class="input-group">
+          <div class="col-md-6 pl-0">
+            <label for="username">
+              {% if LANGUAGE_CODE == 'en' %}
+              Username
+              {%else%}
+              Nombre de usuario
+              {%endif%} </label>
+
+            <input class="form-control" type="text" name="username" id="username" value="{{form.username.value}}"
+              required>
+            <div class="valid-feedback">
+              Valid
+            </div>
+            <div class="invalid-feedback">
+              Please choose a username.
+            </div>
+          </div>
+          <div class="col-md-6 pr-0">
+            <label>
+              {% if LANGUAGE_CODE == 'en' %}
+              Password
+              {%else%}
+              Contraseña
+              {%endif%}
+            </label>
+
+            <input type="password" value="{{form.password.value}}" name="password" value="" class="form-control"
+              maxlength="128" id="password" required>
+
+            <div class="valid-feedback">
+              Valid
+            </div>
+            <div class="invalid-feedback">
+              Please enter a valid password.
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-4 pl-0 ">
+            <label> {% if LANGUAGE_CODE == 'en' %}
+              IP*
+              {%else%}
+              Dirección IP*
+              {%endif%} </label>
+            <input type="text" class="form-control" value="{{form.IP.value}}" name="IP" maxlength="128" id="IP"
+              pattern="^(25[0-5]|2[0-4]\d|[0-1]?\d?[1-9]|[0-1]?[1-9][0])(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}$"
+              required>
+
+            <div class="valid-feedback">
+              Valid
+            </div>
+            <div class="invalid-feedback">
+              Please enter a valid IP
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label>{% if LANGUAGE_CODE == 'en' %}
+              Port Number
+              {%else%}
+              Número de puerto
+              {%endif%} </label>
+            <input class="form-control" value="{{form.portNum.value}}" type="text" name="portNum" maxlength="5"
+              id="portNum" pattern="[1-99999]+" required>
+          </div>
+          <div class="col-md-4 pr-0">
+            <label>{% if LANGUAGE_CODE == 'en' %}
+              Camera Number
+              {%else%}
+              Número de la cámara
+              {%endif%}</label>
+            <input type="text" class="form-control" value="{{form.cameraNum.value}}" name="cameraNum" maxlength="5"
+              id="cameraNum" pattern="[1-999]+" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <label> {% if LANGUAGE_CODE == 'en' %}
+            Camera Model
+            {%else%}
+            Modelo de la cámara
+            {%endif%}</label>
+
+          <select name="camera" class="custom-select" required id="id_camera_model">
+            <!-- <option value="{{form.camera_id.value}}" selected> {{form.camera_id.value}}</option> -->
+            {% for camera in cameras.all %}
+            {% if camera.pk != form.camera.value%}
+            <option value="{{camera.pk}}"> {{ camera.camera_model }}</option>
+
+            {%else%}
+            <option value="{{camera.pk}}" selected> {{ camera.camera_model }}</option>
+            {% endif %}
+            {% endfor %}
+          </select>
+        </div>
+        
+        
+        <div class="form-row">
+          <div class="col-md pl-0 pr-0">
+            <label> {% if LANGUAGE_CODE == 'en' %}
+              Description*
+              {%else%}
+              descripción*
+              {%endif%}
+            </label>
+            <input type="text" class="form-control" value="{{form.description.value}}" name="description"
+              maxlength="128" id="description" pattern="[a-zA-Z0-9\.\-_]+" required>
+            <div class="valid-feedback">
+              Valid
+            </div>
+            <div class="invalid-feedback">
+              Please enter a valid description
+            </div>
+          </div>
+          <!-- <div class="col-md-6 pr-0">
+            <label>{% if LANGUAGE_CODE == 'en' %}
+              Camera Usages:*
+              {%else%}
+              Usos de la cámara:*
+              {%endif%}</label>
+            <input class="form-control" value="{{form.usage.value}}" type="text"> -->
+          <!-- </div> -->
+        </div>
+
+        <div>
+          <!-- Default unchecked -->
+
+          <label>Enabled</label>
+          {%if form.enabled.value == 1%}
+          <input type="checkbox" name="enabled" maxlength="5" id="enabled" checked>
+          {%else%}
+
+          <input type="checkbox" name="enabled" maxlength="5" id="enabled">
+          {% endif %}
+        </div>
+        <div class="mt-3">
+          <a href="{% url 'Interface-zone' channel.id %}" class="ml-0 btn btn-info" type="submit">
+            {% if LANGUAGE_CODE == 'en' %}
+            Select Zone area to grab
+            {%else%}
+            Seleccione el área o zona específica a utilizar
+            {%endif%}
+
+          </a><br>
+          <small class="form-text">
+            {% if LANGUAGE_CODE == 'en' %}
+            Zone area used to grab the area for recongnition,the unselected area will be ignored
+            {%else%}
+            El área o zona específica seleccionada para establecer el área de reconocimiento. El área no seleccionada,
+            será ignorada.
+            {%endif%}
+
+          </small>
+        </div>
+        <div>
+          <a href="{% url 'Interface-channel' %}" class="ml-0 btn btn-white wave-effect text-primary" type="button">
+
+            {% if LANGUAGE_CODE == 'en' %}
+            Cancel
+            {%else%}
+            Cancelar
+            {%endif%}
+          </a>
+          <button class="btn btn-primary" type="submit">
+            {% if LANGUAGE_CODE == 'en' %}
+            Update
+            {%else%}
+            Actualizar
+            {%endif%}
+
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</section>
+
+
+{% endblock content %}

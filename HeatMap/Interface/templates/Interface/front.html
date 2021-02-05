@@ -1,0 +1,84 @@
+{% extends "Interface/base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+{% load i18n %}
+
+<section class="view intro">
+    <div class="container-fluid" >
+      <div class="row d-flex  h-100 mx-md-5 align-items-center"  >
+        <div class="col-lg-4 col-xl-5 col-flex mt-lg-0 pt-lg-4 mt-5 pt-5" style="display: none;" id="landing-left">
+          <h1 class="heading font-weight-bold display-3 mb-4">
+            FacialStats
+          </h1>
+          <h1 class="heading font-weight-bold display-3 mb-4">
+            {% get_current_language as LANGUAGE_CODE %}
+            
+            {% if LANGUAGE_CODE == 'en' %}
+            HeatMap
+            {%else%}
+            <span>-</span> Mapa de calor
+            {%endif%}
+          </h1>
+          <h5 class="subheading mb-xl-4 pb-xl-0 mb-md-3 pb-md-3 mb-4">
+            {% get_current_language as LANGUAGE_CODE %}
+            
+            {% if LANGUAGE_CODE == 'en' %}
+
+            A data visualization technique that shows magnitude of a phenomenon as color in two dimensions.
+            <br class="d-none d-xl-block"> 
+            The variation in color may be by hue or intensity, giving obvious visual cues to the reader about how the phenomenon is clustered
+            or varies over space.
+            
+            {%else%}
+            Una técnica de visualización de datos que muestra la magnitud de un fenómeno como el color en dos dimensiones. 
+            <br class="d-none d-xl-block"> 
+            La variación de color puede deberse al tono o la intensidad, lo que proporciona al lector pistas visuales obvias sobre cómo el fenómeno se agrupa o varía en el espacio.
+            {%endif%}
+            
+    
+          </h5>
+          <!-- {{LANGUAGE.1}} -->
+          {% if not user.is_authenticated %}
+    <div>
+        <a href="{% url 'login' %}" class="landing-btn btn btn-primary blue-gradient btn-rounded" role="button" style="margin:5px 0"> 
+          <i class="mr-2 fas fa-sign-in-alt"></i>
+          {% get_current_language as LANGUAGE_CODE %}
+          {% if LANGUAGE_CODE == 'en' %}
+          Login
+          {%else%}
+          Iniciar sesión
+          {%endif%}
+        </a>
+    </div>
+    
+  
+
+    {% endif %}
+    
+        </div>
+        <div class="col-lg-8 col-xl-7 pt-lg-4">
+          <div class="view">
+            <div class="row justify-content-center landing-img">
+              <img src="{% static 'images/img3.png' %}">
+              <img src="{% static 'images/camera.png' %}">
+            </div>
+            <div class="row justify-content-center landing-img">
+              <img src="{% static 'images/img2.jpg' %}">
+              <img src="{% static 'images/img1.jpg' %}">
+            </div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+
+</section>
+<script>
+$(document).ready(function(){
+    $("#landing-left").slideDown(1500);
+});
+
+</script>
+
+{% endblock content %}

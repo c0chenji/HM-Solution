@@ -1,0 +1,1032 @@
+{% extends "Interface/base.html" %}
+{% load static %}
+{% block content %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+<div class="container mb-3 heatmap-top-container">
+  <div class="row">
+    <div class="col-md">
+      <div class="form-group row">
+        {% if LANGUAGE_CODE == 'en' %}
+        <label class="col-form-label col-form-label-sm">
+          Start Date
+        </label>
+        <div class="col-md-8">
+          <input onchange="showValue(this.id)" value="" id="startDate" class="form-control form-control-sm" type="date">
+        </div>
+        {%else%}
+        <label class="col-form-label col-form-label-sm"></label>
+        Fecha de inicio
+        </label>
+        <div class="col-md-7 ">
+          <input onchange="showValue(this.id)" value="" id="startDate" class="form-control form-control-sm" type="date">
+        </div>
+        {%endif%}
+
+      </div>
+      <div class="form-group row">
+
+
+        {% if LANGUAGE_CODE == 'en' %}
+        <label class="col-form-label col-form-label-sm">
+          Start Time
+        </label>
+        <div class="col-md-8">
+          <input onchange="showValue(this.id)" value="" id="startTime" class="form-control form-control-sm" type="time">
+        </div>
+        {%else%}
+        <label class="col-form-label col-form-label-sm">
+          Tiempo de inicio
+        </label>
+        <div class="col-md-7 ml-1">
+          <input onchange="showValue(this.id)" value="" id="startTime" class="form-control form-control-sm" type="time">
+        </div>
+        {%endif%}
+      </div>
+    </div>
+    <div class="col-md">
+      <div class="form-group row">
+
+
+        {% if LANGUAGE_CODE == 'en' %}
+        <label class="col-form-label col-form-label-sm">
+          End Date
+        </label>
+        <div class="col-md-8">
+          <input onchange="showValue(this.id)" id="endDate" class="form-control form-control-sm" type="date">
+        </div>
+        {%else%}
+        <label class="col-form-label col-form-label-sm">
+          Fecha de finalización
+        </label>
+        <div class="col-md">
+          <input onchange="showValue(this.id)" id="endDate" class="form-control form-control-sm es-endtime-input"
+            type="date">
+        </div>
+        {%endif%}
+
+
+      </div>
+      <div class="form-group row">
+        {% if LANGUAGE_CODE == 'en' %}
+        <label class="col-form-label col-form-label-sm">
+          End Time
+        </label>
+        <div class="col-md-8">
+          <input onchange="showValue(this.id)" id="endTime" class="form-control form-control-sm" type="time">
+        </div>
+        {%else%}
+        <label class="col-form-label col-form-label-sm">
+          Tiempo de finalización
+        </label>
+        <div class="col-md ml-1">
+          <input onchange="showValue(this.id)" id="endTime" class="form-control form-control-sm" type="time">
+        </div>
+        {%endif%}
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="row">
+        <div class="col">
+          <div class="row ml-2">
+            {% if LANGUAGE_CODE == 'en' %}
+            <label class="col-form-label-sm">Top Color:</label>
+            {%else%}
+            <label class="col-form-label opt-label-font">Color superior:</label>
+            {%endif%}
+
+            <select id="topColor" onchange="showTopColor()" class="custom-select form-control-sm">
+              <option value="Nothing" selected></option>
+              {% for color in topColor %}
+                  <option value='{{color}}'> {{color}}</option>         
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="col-md">
+          <div class="row ml-2">
+            {% if LANGUAGE_CODE == 'en' %}
+            <label class="form-label col-form-label-sm">Bottom Color:</label>
+            {%else%}
+            <label class="col-form-label opt-label-font">Color inferior:</label>
+            {%endif%}
+
+            <select id="bottomColor" onchange="showBottomColor()" class="custom-select form-control-sm">
+              <option value="Nothing" selected></option>
+              {% for color in botColor %}
+                  <option value='{{color}}'> {{color}}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row ">
+    <div class="col-md-12">
+      <div class="row mb-2">
+        <label class="col-form-label col-form-label-sm mb-2">
+
+          {% if LANGUAGE_CODE == 'en' %}
+          Dwelling Time(s):
+          {%else%}
+          Tiempo(s) de permanencia
+          {%endif%}
+        </label>
+        <input type="range" min="0" max="180" value="0" class="slider mb-2" id="dwelling">
+        <span id="seconds"></span><span class="ml-2">
+
+          {% if LANGUAGE_CODE == 'en' %}
+          seconds
+          {%else%}
+          segundos
+          {%endif%}
+        </span>
+      </div>
+      <div class="row">
+        <div class="col-md ">10s: <span id="tenSecs">0</span></div>
+        <div class="col-md">30s: <span id="thirtySecs">0</span></div>
+        <div class="col-md">60s: <span id="sixtySecs">0</span></div>
+        <div class="col-md">180s: <span id="threeMins">0</span></div>
+      </div>
+      <div class="row mt-3 d-flex justify-content-between">
+        {% if LANGUAGE_CODE == 'en' %}
+        <button class="btn btn-info btn-sm" id="zoneArea" onclick="toggleZoneArea()" value="off">Show Zone
+          Areas</button>
+        {%else%}
+        <button class="btn btn-info btn-sm" id="zoneArea" onclick="toggleZoneArea()" value="off">Mostrar áreas o zonas
+          específicas</button>
+        {%endif%}
+
+        {% if LANGUAGE_CODE == 'en' %}
+        <button class="btn btn-primary btn-sm heatmap-synch-show-btn" id="circle" onclick="toggleCircle()"
+          value="off">Show Circles</button>
+        {%else%}
+        <button class="btn btn-primary btn-sm" id="circle" onclick="toggleCircle()" value="off">Mostrar
+          círculos</button>
+        {%endif%}
+
+        {% if LANGUAGE_CODE == 'en' %}
+        <button class="btn btn-warning btn-sm text-white" id="directions" onclick="toggleDirections()" value="off">Show
+          directions</button>
+        {%else%}
+        <button class="btn btn-warning btn-sm text-white" id="directions" onclick="toggleDirections()"
+          value="off">Mostrar Direcciones</button>
+        {% endif %}
+
+        <button class="btn btn-success btn-sm" onclick="applyFilter()">
+          {% if LANGUAGE_CODE == 'en' %}
+          Apply Filter
+          {%else%}
+          Aplicar filtro
+          {%endif%}
+        </button>
+        <button class="btn btn-danger btn-sm" onclick="resetFilter()">
+          {% if LANGUAGE_CODE == 'en' %}
+          Reset Filter
+          {%else%}
+          Eliminar filtro
+          {%endif%}
+        </button>
+        <button class="btn btn-outline-primary btn-sm" onclick="saveReport()">
+          {% if LANGUAGE_CODE == 'en' %}
+          Export Data
+          {%else%}
+          Exportar datos
+          {%endif%}
+        </button>
+      </div>
+
+
+    </div>
+
+
+    <div class="col-md">
+      <div class="row justify-content-end mb-3 ">
+
+      </div>
+      <div class="row justify-content-end mb-3">
+
+      </div>
+      <div class="row justify-content-end">
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row channel-section">
+    <div class="col-2" style=" height:500px;overflow:auto">
+      {% for object in channels %}
+      {% if object.enabled == 1 %}
+      <div class="row carousel-sidebar" id="{{object.id}}" onclick="channelFocus(this.id)" tabindex="0">
+        <img src='/media/images/{{object.id}}/{{object.description}}.jpg' style="width:100%;height:100%" alt="">
+        <div class="channel-description">
+          {{object.description}}</div>
+      </div>
+      {% endif %}
+      {% endfor %}
+    </div>
+    <div class="col-10 d-flex justify-content-center">
+      <div style="position: relative;">
+        <canvas id="textCanvas" width="700px" height="500px"
+          style="position:absolute;z-index:8;border:1px solid #000000;">
+        </canvas>
+        <canvas id="directionCanvas" width="700px" height="500px"
+          style="position:absolute;z-index:7;border:1px solid #000000;">
+        </canvas>
+        <canvas id="myCanvas" width="700px" height="500px"
+          style="position:absolute;z-index:6;border:1px solid #000000;">
+        </canvas>
+        <canvas id="circleCanvas" width="700px" height="500px"
+          style="position:absolute;z-index:5;border:1px solid #000000;">
+        </canvas>
+        <canvas id="heatCanvas" width="700px" height="500px"
+          style="position:absolute;z-index:4;border:1px solid #000000;">
+        </canvas>
+        <canvas id="imageCanvas" width="700px" height="500px"
+          style="position:obsolute;z-index:-1;border:1px solid #000000;"></canvas>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  //dwelling time dictionary for drawing circles
+  var dwellingCircle = { "10": 0, "30": 0, "60": 0, "180": 0 };
+  var imgSource;
+  var coordinateString;
+  var directionString;
+  var defaultChannelId;
+  var defaultTag;
+  //store coordinates and img url in front end
+  
+  coordinateString = '{{ defaultChannel.coordinates|escapejs }}';
+  directionString = '{{defaultChannel.directions|escapejs}}'
+  imgSource = '{{defaultChannel.camera.rtsp_url.url}}';
+  imgSource = '/media/images/{{defaultChannel.id}}/{{defaultChannel.description}}.jpg';
+
+  result = JSON.parse(coordinateString);
+  directionResult = JSON.parse(directionString);
+  
+
+
+
+  function showBottomColor() {
+    var bottomColor = document.getElementById("bottomColor").value;
+    return bottomColor;
+  }
+
+  function showTopColor() {
+    var topColor = document.getElementById("topColor").value;
+    return topColor;
+  }
+
+  function showStartDate(id) {
+    var startDate = document.getElementById("startDate").value;
+
+    return startDate;
+  }
+  function showStartTime() {
+    var startTime = document.getElementById("startTime").value;
+
+    return startTime;
+  }
+  function showValue(id) {
+    var inputValue = document.getElementById(id).value;
+
+    return inputValue;
+  }
+
+  var data = [];
+  var temp_circle = [];
+
+  {%  for item in heatmap %};
+  {% if item.frame.channel.id == defaultChannel.id %}
+  //shrink dwellingTime value 5 times to fit the circle radius.
+  var centerX = ({{ item.topLeftX }}+{{ item.topLeftX }}+{{ item.width }}) /2;
+  var centerY = ({{ item.topLeftY }}+{{ item.topLeftY }}+{{ item.height }}) /2;
+  console.log(centerX, centerY, {{ item.width }}, {{ item.height }});
+  data.push([centerX, centerY, {{ item.dwellingTime }}/5,'{{item.topColor}}','{{item.bottomColor}}']);
+    //store number of circles in specifiy time.
+
+  {% if item.dwellingTime >= 10 %};
+  dwellingCircle["10"]++;
+  {% endif %}
+  {% if item.dwellingTime >= 30 %};
+  dwellingCircle["30"]++;
+  {% endif %}
+  {% if item.dwellingTime >= 60 %};
+  dwellingCircle["60"]++;
+  {% endif %}
+  {% if item.dwellingTime >= 180 %};
+  dwellingCircle["180"]++;
+  {% endif %}
+  {% endif %}
+  {% endfor %};
+
+  temp_circle = data;
+  console.log("temp when it is created", temp_circle);
+  //create a layer name directionCanvas for loading directions
+  var textCanvas = document.getElementById("textCanvas");
+  var textCtx = textCanvas.getContext('2d');
+  var directionCanvas = document.getElementById("directionCanvas");
+  var directCtx = directionCanvas.getContext('2d');
+  directCtx.lineWidth = 2;
+  directCtx.strokeStyle = "#FFD700";
+  directData = directCtx.getImageData(0, 0, directionCanvas.width, directionCanvas.height)
+  //auto load directions of default channel
+  // loadDirections(directionResult,directCtx);
+
+  //create a layer named myCanvas for loading zones
+  var canvas = document.getElementById("myCanvas");
+  var ctx = canvas.getContext("2d");
+  ctx.lineWidth = 2;
+  ctx.font = "600 13px Georgia";
+  ctx.fillStyle = "#ADFF2F";
+  ctx.strokeStyle = "#ADFF2F";
+  const rect = canvas.getBoundingClientRect();
+  var zoneData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+  //load img on imageCanvas layer
+  var imgCanvas = document.getElementById("imageCanvas");
+  var imgCxt = imgCanvas.getContext("2d");
+  var imgData = ctx.getImageData(0, 0, imgCanvas.width, imgCanvas.height);
+  loadImg(imgSource, imgCxt);
+
+  function updatePercentTag(id){
+    let total =0;
+    let myMap= new Map();
+    {% for item in directions %};
+      if({{item.frame.channel.id}} == id){
+        total++;
+        var index=parseInt('{{item.direction|escapejs}}');
+        var directions = JSON.parse('{{item.frame.channel.directions|escapejs }}');
+        if(myMap.has(index)){
+          myMap.get(index)[0]++;
+        }
+        else{
+          myMap.set(index,[1,directions[index]]);
+          // myMap[{{item.direction}}]= [0,directions[index]];
+        }
+      }
+    {% endfor %};
+    for(let value of myMap.values()){
+      value[0]=value[0]/total;
+    }
+    
+    return myMap;
+  }
+
+
+
+  function updateHeatDot(id) {
+    defaultChannelId = id;
+    dwellingCircle = { "10": 0, "30": 0, "60": 0, "180": 0 };
+    console.log("defualt channel is " + defaultChannelId);
+    {%  for item in heatmap %};
+    if ({{ item.frame.channel.id }} == id) {
+      var centerX = ({{ item.topLeftX }} +{{ item.topLeftX }}+{{ item.width }}) /2;
+      var centerY = ({{ item.topLeftY }}+{{ item.topLeftY }}+{{ item.height }}) /2;
+      console.log(centerX, centerY);
+      data.push([centerX, centerY, {{ item.dwellingTime }}/5,'{{item.topColor}}','{{item.bottomColor}}']);
+            // data.push([{{ item.topLeftX }}, {{ item.topLeftY }}, {{ item.dwellingTime }}/5,'{{item.topColor}}','{{item.bottomColor}}']);
+            //store number of circles in specifiy time.
+
+      {% if item.dwellingTime >= 10 %};
+          dwellingCircle["10"]++;
+      {% endif %}
+      {% if item.dwellingTime >= 30 %};
+        dwellingCircle["30"]++;
+      {% endif %}
+      {% if item.dwellingTime >= 60 %};
+        dwellingCircle["60"]++;
+      {% endif %}
+      {% if item.dwellingTime >= 180 %};
+        dwellingCircle["180"]++;
+      {% endif %}
+    }
+  {% endfor %};
+  dwellingCount();
+  temp_circle = data;
+  console.log("temp when it is updated", temp_circle);
+  }
+
+  function channelFocus(id) {
+    document.getElementById(id).focus();
+    {% for object in channels %}
+    if ('{{object.id}}' === id) {
+
+      // imgSource= '{{object.camera.rtsp_url.url}}';
+      imgSource = '/media/images/{{object.id}}/{{object.description}}.jpg';
+      loadImg(imgSource, imgCxt);
+      coordinateString = '{{ object.coordinates|escapejs }}';
+      directionString = '{{ object.directions|escapejs }}';
+      // imgSource = '{{object.camera.rtsp_url.url}}';
+      imgSource = '/media/images/{{object.id}}/{{object.description}}.jpg';
+      result = JSON.parse(coordinateString);
+      directionResult = JSON.parse(directionString);
+      
+      toggleZoneArea();
+      toggleZoneArea();
+      data = []
+      updateHeatDot(id);
+      defaultTag=updatePercentTag(defaultChannelId);
+      loadHeatDots(data);
+      toggleCircle();
+      toggleCircle();
+      toggleDirections();
+      toggleDirections();
+
+    }
+
+    {% endfor %}
+  }
+  //circle represent the individuals' positions
+  var circleCanvas = document.getElementById("circleCanvas");
+  var hc_ctx = circleCanvas.getContext("2d");
+  var circleData = hc_ctx.getImageData(0, 0, circleCanvas.width, circleCanvas.height);
+  hc_ctx.strokeStyle = "#F0F8FF";
+
+
+
+  //toggle effect for show zone area button
+  function toggleZoneArea() {
+    var target = document.getElementById("zoneArea");
+    if (target.value == "on") {
+      {% if LANGUAGE_CODE == 'en' %}
+      target.innerText = "Show Zone Areas";
+      {% else%}
+      target.innerText = "Mostrar áreas o zonas específicas";
+      {% endif %}
+      target.value = "off";
+      target.classList.add('btn-info');
+      target.classList.remove('btn-outline-info');
+      ctx.putImageData(zoneData, 0, 0);
+      console.log("temp array after off", temp_circle);
+      //hide area
+    }
+    else {
+      {% if LANGUAGE_CODE == 'en' %}
+      target.innerText = "Hide Zone Areas";
+      {% else%}
+      target.innerText = "Ocultar áreas o zonas específicas";
+      {% endif %}
+
+      target.value = "on";
+      target.classList.add('btn-outline-info');
+      target.classList.remove('btn-info');
+      loadPolygons(result, ctx);
+      console.log("temp array after on", temp_circle);
+    }
+  }
+
+  //hide or show circles 
+  function toggleCircle() {
+    var target = document.getElementById("circle");
+    if (target.value == "on") {
+      {% if LANGUAGE_CODE == 'en' %}
+      target.innerText = "Show Circles";
+      {% else%}
+      target.innerText = "Mostrar círculos";
+      {% endif %}
+
+      target.value = "off";
+      target.classList.add('btn-primary');
+      target.classList.remove('btn-outline-primary');
+      hc_ctx.putImageData(circleData, 0, 0);
+      //hide area
+    }
+    else {
+      {% if LANGUAGE_CODE == 'en' %}
+      target.innerText = "Hide Circles";
+      {% else%}
+      target.innerText = "Ocultar círculos";
+      {% endif %}
+
+      target.value = "on";
+      target.classList.add('btn-outline-primary');
+      target.classList.add('heatmap-synch-show-btn');
+      target.classList.remove('btn-primary');
+      loadCircles(temp_circle);
+    }
+  }
+  function toggleDirections() {
+    var target = document.getElementById("directions");
+    if (target.value == "on") {
+      {% if LANGUAGE_CODE == 'en' %}
+      target.innerText = "Show Directions";
+      {% else%}
+      target.innerText = "Mostrar Direcciones";
+      {% endif %}
+
+      target.value = "off";
+      target.classList.add('btn-warning');
+      target.classList.remove('btn-outline-warning');
+      target.classList.remove('text-warning');
+      directCtx.putImageData(directData, 0, 0);
+      textCtx.putImageData(directData, 0, 0);
+
+    }
+    else {
+      {% if LANGUAGE_CODE == 'en' %}
+      target.innerText = "Hide Directions";
+      {% else%}
+      target.innerText = "Ocultar Direcciones";
+      {% endif %}
+      target.value = "on";
+      target.classList.add('btn-outline-warning');
+      target.classList.add('text-warning');
+      // target.classList.add('heatmap-synch-show-btn');
+      target.classList.remove('btn-warning');
+      loadDirections(directionResult, directCtx);
+      loadText(defaultTag,textCtx);
+      
+
+    }
+    return true;
+  }
+
+
+  function resetFilter() {
+    location.reload();
+  }
+  function applyFilter() {
+    temp_circle = [];
+    data = [];
+    var startFrom = showValue("startDate") + " " + showValue("startTime")
+    var endTo = showValue("endDate") + " " + showValue("endTime");
+    var startDate = showValue("startDate");
+    var startTime = showValue("startTime");
+    var endDate = showValue("endDate");
+    var endTime = showValue("endTime");
+
+    console.log("default id in filter is ", defaultChannelId);
+    if (startDate === "" && endDate === "" && startTime === "" && endTime === "") {
+      alert("Time inputs could not be empty");
+
+    }
+    {% for object in heatmap %}
+
+    var tempTime = '{{object.frame.captureTime|date:"Y-m-d H:i"}}';
+    var tempDate = '{{object.frame.captureTime|date:"Y-m-d"}}';
+    var tempHours = '{{object.frame.captureTime|date:"H:i"}}';
+    // console.log("The time is",tempHours,"  The date and time is ",tempTime);
+    // if(tempTime>= compareTarget){
+    //   console.log("hello");
+    // }
+    // console.log("start time",startFrom);
+    // if(startFrom>endTo && startFrom!==" "&& endTo!==" "){
+    //   console.log("Error， time input is empty");
+    // }
+    // if(startFrom === " " && endTo === " " ){
+    //   console.log("default start time and end time");
+
+    // }
+    if ('{{object.frame.channel.id}}' === defaultChannelId) {
+      console.log("id after comparing in the filter", '{{object.frame.channel.id}}');
+      //deal with hours when startDate and endTime are empty
+
+      if (startDate === "" && endDate === "") {
+
+        if (tempHours >= startTime && endTime === "" && startTime !== "") {
+          // console.log("pushing only after start time", tempHours);
+          var centerX = ({{ object.topLeftX }} +{{ object.topLeftX }} +{{ object.width }}) /2;
+          var centerY = ({{ object.topLeftY }} +{{ object.topLeftY }}+{{ object.height }}) /2;
+          data.push([centerX, centerY, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+          // data.push([{{ object.topLeftX }}, {{ object.topLeftY }}, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+        }
+        if (tempHours <= endTime && startTime === "" && endTime !== "") {
+          // console.log("pushing only after end time", tempHours);
+          var centerX = ({{ object.topLeftX }} +{{ object.topLeftX }}+{{ object.width }}) /2;
+          var centerY = ({{ object.topLeftY }}+{{ object.topLeftY }}+{{ object.height }}) /2;
+          data.push([centerX, centerY, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+          // data.push([{{ object.topLeftX }}, {{ object.topLeftY }}, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+        }
+        if (endTime !== "" && startTime !== "" && tempHours <= endTime && tempHours >= startTime) {
+    // console.log("pushing only between start and end time", tempHours);
+          var centerX = ({{ object.topLeftX }} +{{ object.topLeftX }}+{{ object.width }}) /2;
+          var centerY = ({{ object.topLeftY }}+{{ object.topLeftY }}+{{ object.height }}) /2;
+          data.push([centerX, centerY, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+          // data.push([{{ object.topLeftX }}, {{ object.topLeftY }}, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+        }
+      }
+
+
+     //deal with date when start time and end time are empty
+    if (startTime === "" && endTime === "") {
+    // console.log("pushing date data ",tempDate);
+      if (tempDate >= startDate && endDate === "" && startDate !== "") {
+        var centerX = ({{ object.topLeftX }} +{{ object.topLeftX }} +{{ object.width }}) /2;
+        var centerY = ({{ object.topLeftY }}+{{ object.topLeftY }}+{{ object.height }}) /2;
+        data.push([centerX, centerY, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+            // data.push([{{ object.topLeftX }}, {{ object.topLeftY }}, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+        }
+      if (tempDate <= endDate && startDate === "" && endDate !== "") {
+        var centerX = ({{ object.topLeftX }} +{{ object.topLeftX }}+{{ object.width }}) /2;
+        var centerY = ({{ object.topLeftY }}+{{ object.topLeftY }}+{{ object.height }}) /2;
+          data.push([centerX, centerY, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+            // data.push([{{ object.topLeftX }}, {{ object.topLeftY }}, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+      }
+      if (startDate !== "" && endDate !== "" && tempDate >= startDate && tempDate <= endDate) {
+        var centerX = ({{ object.topLeftX }} +{{ object.topLeftX }}+{{ object.width }}) /2;
+        var centerY = ({{ object.topLeftY }}+{{ object.topLeftY }}+{{ object.height }}) /2;
+        data.push([centerX, centerY, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+            // data.push([{{ object.topLeftX }}, {{ object.topLeftY }}, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+      }
+    }
+
+    if (startTime !== "" && startDate !== "" && endTime === "" && endDate === "") {
+    // console.log("start time is",startFrom);
+
+      if (tempTime >= startFrom) {
+        var centerX = ({{ object.topLeftX }} +{{ object.topLeftX }} +{{ object.width }}) /2;
+        var centerY = ({{ object.topLeftY }}+{{ object.topLeftY }}+{{ object.height }}) /2;
+        data.push([centerX, centerY, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+          // data.push([{{ object.topLeftX }}, {{ object.topLeftY }}, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+      }
+    }
+    if (startTime == "" && startDate == "" && endTime !== "" && endDate !== "") {
+
+
+      if (tempTime <= endTo) {
+        // console.log("start time is",tempTime);
+        var centerX = ({{ object.topLeftX }} +{{ object.topLeftX }} +{{ object.width }}) /2;
+        var centerY = ({{ object.topLeftY }}+{{ object.topLeftY }}+{{ object.height }}) /2;
+        data.push([centerX, centerY, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+          // data.push([{{ object.topLeftX }}, {{ object.topLeftY }}, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+        }
+      }
+      //startTime none empty, startDate none empty, endTime empty, endDate empty
+      if (startTime !== "" && startDate !== "" && endTime !== "" && endDate !== "") {
+        if (tempTime <= endTo && tempTime >= startFrom) {
+            var centerX = ({{ object.topLeftX }} +{{ object.topLeftX }} +{{ object.width }}) /2;
+            var centerY = ({{ object.topLeftY }}+{{ object.topLeftY }}+{{ object.height }}) /2;
+            data.push([centerX, centerY, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+          // data.push([{{ object.topLeftX }}, {{ object.topLeftY }}, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+        }
+      }
+      //all time input empty
+      // if (startTime ==="" && startDate ==="" && endTime==="" && endDate===""){
+
+      //     data.push([{{ object.topLeftX }}, {{ object.topLeftY }}, {{ object.dwellingTime }}/5,'{{object.topColor}}','{{object.bottomColor}}']);
+
+      // }
+    }
+    {% endfor %}
+
+    if (dwellPoint == undefined && showBottomColor() == "Nothing" && showTopColor() == "Nothing") {
+    dwellPoint = 0;
+    for (let item of data) {
+      if (item[2] * 5 >= dwellPoint) {
+        temp_circle.push(item);
+      }
+    }
+    loadHeatDots(temp_circle);
+    //refresh toggle Circle;
+    toggleCircle();
+    toggleCircle();
+    // console.log("without selecting bottom color value is", showBottomColor());
+  }
+  else {
+    if (showBottomColor() === "Nothing" && showTopColor() === "Nothing") {
+      // console.log("loading all when top and bottom are nothing");
+      for (let item of data) {
+        if (item[2] * 5 >= dwellPoint) {
+          temp_circle.push(item);
+        }
+      }
+
+      loadHeatDots(temp_circle);
+      //refresh toggle Circle;
+      toggleCircle();
+      toggleCircle();
+    }
+    if (showBottomColor() === "Nothing" && showTopColor() !== "Nothing") {
+      for (let item of data) {
+        if (item[3] === showTopColor()) {
+          if (item[2] * 5 >= dwellPoint) {
+            temp_circle.push(item);
+          }
+        }
+      }
+      loadHeatDots(temp_circle);
+      //refresh toggle Circle;
+      toggleCircle();
+      toggleCircle();
+    }
+    if (showTopColor() === "Nothing" && showBottomColor() !== "Nothing") {
+      for (let item of data) {
+        if (item[4] === showBottomColor()) {
+          if (item[2] * 5 >= dwellPoint) {
+            temp_circle.push(item);
+          }
+        }
+      }
+
+      loadHeatDots(temp_circle);
+      //refresh toggle Circle;
+      toggleCircle();
+      toggleCircle();
+    }
+
+    ///fix this part
+    if (showTopColor() !== "Nothing" && showBottomColor() !== "Nothing") {
+      for (let item of data) {
+        if (item[3] == showTopColor() && item[4] === showBottomColor()) {
+          if (item[2] * 5 >= dwellPoint) {
+            temp_circle.push(item);
+          }
+        }
+      }
+      loadHeatDots(temp_circle);
+      //refresh toggle Circle;
+      toggleCircle();
+      toggleCircle();
+    }
+    // console.log("current dwellpoint is ", dwellPoint);
+    // console.log("current data is", data);
+    // console.log("applyed bottom color is ", showBottomColor());
+    // console.log("applyed top color is ", showTopColor());
+  }
+  }
+</script>
+
+<script>
+  //dwelling slider bar
+  var dwellPoint = 0;
+  var slider = document.getElementById("dwelling");
+  var output = document.getElementById("seconds");
+  output.innerHTML = slider.value;
+
+  slider.oninput = function () {
+    output.innerHTML = this.value;
+    dwellPoint = this.value
+  }
+  console.log("slider bar value is :", dwellPoint);
+</script>
+
+<!-- scripts for adding heat dots -->
+<script>
+  // render circle numbers to html
+  function dwellingCount() {
+    document.getElementById("tenSecs").innerText = dwellingCircle["10"];
+    document.getElementById("thirtySecs").innerText = dwellingCircle["30"];
+    document.getElementById("sixtySecs").innerText = dwellingCircle["60"];
+    document.getElementById("threeMins").innerText = dwellingCircle["180"];
+  }
+
+  dwellingCount();
+  console.log("dwellingcircle is:", dwellingCircle);
+  var heat = simpleheat("heatCanvas");
+  heat.data(data);
+  heat.radius(15, 25);
+  heat.draw();
+
+
+  function loadHeatDots(data) {
+    // var heat_doc = document.getElementById("heatCanvas");
+    // var heat_ctx = heat_doc.getContext("2d");
+    // heat_ctx.putImageData(imageData,0,0);
+    heat.data(data);
+    heat.radius(15, 25);
+    heat.draw();
+  }
+</script>
+<!-- export csv file -->
+<script>
+  function exportToCsv(filename, rows) {
+    var processRow = function (row) {
+      var finalVal = '';
+      for (var j = 0; j < row.length; j++) {
+        var innerValue = row[j] === null ? '' : row[j].toString();
+        if (row[j] instanceof Date) {
+          innerValue = row[j].toLocaleString();
+        };
+        var result = innerValue.replace(/"/g, '""');
+        if (result.search(/("|,|\n)/g) >= 0)
+          result = '"' + result + '"';
+        if (j > 0)
+          finalVal += ',';
+        finalVal += result;
+      }
+      return finalVal + '\n';
+    };
+
+    var csvFile = '';
+    for (var i = 0; i < rows.length; i++) {
+      csvFile += processRow(rows[i]);
+    }
+
+    var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
+    if (navigator.msSaveBlob) { // IE 10+
+      navigator.msSaveBlob(blob, filename);
+    } else {
+      var link = document.createElement("a");
+      if (link.download !== undefined) { // feature detection
+        // Browsers that support HTML5 download attribute
+        var url = URL.createObjectURL(blob);
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+    }
+  }
+  var row = [];
+  var cameraModel;
+  function getCameraModel() {
+
+    {% for object in channels %}
+    if ('{{object.id}}' === defaultChannelId) {
+      cameraModel = '{{object.camera.camera_model|escapejs}}';
+      // console.log("camera model is",cameraModel );
+
+    }
+    {% endfor %}
+  }
+
+  var labels = ['Camera', 'ZoneArea', 'Visitor', 'Average Dwelling Time'];
+  var zoneRows = [];
+
+  function dayTimeArray() {
+    var result = [];
+    for (i = 0; i <= 24; i++) {
+      result.push([i, 0, 0, 0, 0]);
+    }
+    return result;
+  }
+
+
+  function genrateZoneRowLabel() {
+    zoneRows.push(["Hours", ">=10s", ">=30s", ">=60s", ">=180s"]);
+  }
+  var zoneDaily = {};
+
+  function generateZoneRowData() {
+    var tenS = 0;
+    var thirtyS = 0;
+    var sixtyS = 0;
+    var oneEigthyS = 0;
+    var start = document.getElementById("startDate").value;
+    start = start + "-00";
+    var end = document.getElementById("endDate").value;
+    end = end + "-24";
+    console.log("generating " + defaultChannelId);
+
+    {%for object in heatmap %}
+    var tempTime = '{{object.frame.captureTime|date:"Y-m-d-H"}}';
+    if ('{{object.frame.channel.id}}' === defaultChannelId) {
+      if (tempTime >= start && tempTime <= end) {
+        var targetZoneArea = '{{object.zoneArea}}';
+        var targetSlot = tempTime.split('-');
+        targetSlot = targetSlot[targetSlot.length - 1];
+        console.log("target is " + targetSlot);
+        if (!(targetZoneArea in zoneDaily)) {
+          zoneDaily[targetZoneArea] = dayTimeArray();
+        }
+        var targetDwellingTime = '{{object.dwellingTime}}';
+        console.log("dw time is " + targetDwellingTime);
+      }
+      if (targetDwellingTime >= 10 && targetDwellingTime <= 30) {
+        zoneDaily[targetZoneArea][String(targetSlot)][1] += 1;
+      }
+      if (targetDwellingTime >= 30 && targetDwellingTime <= 60) {
+        zoneDaily[targetZoneArea][String(targetSlot)][2] += 1;
+      }
+      if (targetDwellingTime >= 60 && targetDwellingTime <= 180) {
+        zoneDaily[targetZoneArea][String(targetSlot)][3] += 1;
+      }
+      if (targetDwellingTime >= 180) {
+        zoneDaily[targetZoneArea][String(targetSlot)][4] += 1;
+      }
+    }
+    {% endfor %}
+
+    console.log("below is zone Daily-------");
+    // console.log(zoneDaily);
+
+    {% for object in channels %}
+    if ('{{object.id}}' == defaultChannelId) {
+      for (i in zoneDaily) {
+        var targetIndex = parseInt(i);
+        console.log('targetIndex is ' + targetIndex);
+        console.log(JSON.parse('{{object.coordinates|escapejs}}'));
+        var targetZone = JSON.parse('{{object.coordinates|escapejs}}')[targetIndex - 1];
+        // zoneRows.push([targetZone["zoneName"]]);
+        console.log("target zone is");
+        console.log(targetZone);
+        console.log("target zone's name is " + targetZone["zoneName"]);
+        zoneRows.push([targetZone.zoneName]);
+        genrateZoneRowLabel();
+        for (j in zoneDaily[i]) {
+          zoneRows.push(zoneDaily[i][j]);
+        }
+        for (item in zoneDaily[i]) {
+          tenS += zoneDaily[i][item][1];
+          thirtyS += zoneDaily[i][item][2];
+          sixtyS += zoneDaily[i][item][3];
+          oneEigthyS += zoneDaily[i][item][4];
+        }
+        zoneRows.push(['Total', tenS, thirtyS, sixtyS, oneEigthyS]);
+        tenS = 0;
+        thirtyS = 0;
+        sixtyS = 0;
+        oneEigthyS = 0;
+        zoneRows.push([]);
+      }
+    }
+    console.log(zoneRows);
+    {% endfor %}
+    return zoneRows;
+    // zoneRows.push(['Total',tenS,thirtyS,sixtyS,oneEigthyS]);
+  }
+  function saveReport() {
+    getCameraModel();
+    var dailyZoneData = generateZoneRowData();
+    zoneRows = [];
+    zoneDaily = {};
+    row = [];
+    var start = document.getElementById("startDate").value;
+    var end = document.getElementById("endDate").value;
+    if (start.length === 0 || end.length === 0 || defaultChannelId === undefined) {
+      alert("please select a channel and start/end date");
+      return false;
+    }
+
+    var tempContainer = {};
+    {% for object in heatmap %}
+    var tempDate = '{{object.frame.captureTime|date:"Y-m-d"}}';
+    if ('{{object.frame.channel.id}}' === defaultChannelId) {
+      if (tempDate >= start && tempDate <= end) {
+        if ('{{object.zoneArea}}' in tempContainer) {
+          // console.log("zone area is ");
+          // console.log ('{{object.zoneArea}}');
+          tempContainer['{{object.zoneArea}}'][0] += 1;
+          // tempContainer['{{object.zoneArea}}'][1] +=  '{{object.dwellingTime}}';
+          var dt = '{{object.dwellingTime}}';
+          tempContainer['{{object.zoneArea}}'][1] += parseInt(dt);
+        }
+        else {
+          tempContainer['{{object.zoneArea}}'] = [];
+
+          tempContainer['{{object.zoneArea}}'][0] = 1;
+          var dt = '{{object.dwellingTime}}';
+          tempContainer['{{object.zoneArea}}'][1] = parseInt(dt);
+        }
+      }
+    }
+    {% endfor %}
+
+    var csvList = [];
+
+
+    {% for object in channels %}
+    if ('{{object.id}}' == defaultChannelId) {
+      // console.log(defaultChannelId);
+      // console.log("In channel "+ defaultChannelId);
+
+      for (i in tempContainer) {
+        // console.log("i is ",i);
+
+        // console.log("type of i is",typeof(i));
+        //   console.log(i);
+        var targetModel = '{{object.camera.camera_model|escapejs}}';
+        var targetIndex = parseInt(i);
+
+        var targetZone = JSON.parse('{{object.coordinates|escapejs}}')[targetIndex - 1];
+        // console.log("below is target zone");
+
+        // console.log(targetZone["zoneName"]);
+        csvList.push([targetModel, targetZone["zoneName"], String(tempContainer[i][0]), String(tempContainer[i][1] / tempContainer[i][0])]);
+      }
+    }
+
+    {% endfor %}
+    // console.log("below is csvList");
+    // console.log(csvList);
+    row.push(['Camera Name', String(cameraModel)]);
+    row.push(['Start Date', start]);
+    row.push(['End Date', end]);
+    row.push([]);
+    row.push(labels);
+
+    for (l in csvList) {
+      row.push(csvList[l]);
+    }
+    row.push([]);
+    for (j in dailyZoneData) {
+      row.push(dailyZoneData[j]);
+    }
+    exportToCsv('export.csv', row)
+  }
+
+
+
+</script>
+{% endblock content %}

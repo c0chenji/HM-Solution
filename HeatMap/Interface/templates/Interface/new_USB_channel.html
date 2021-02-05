@@ -1,0 +1,52 @@
+{% extends "Interface/base.html" %}
+{% load static %}
+{% block content %}
+    <section>
+      <div class="row justify-content-center">
+        <div class="col-5">
+          <form enctype="multipart/form-data" action="{% url 'Interface-newUSBchannel' %}" name="edit" method="POST" role="form" id="ChannelUSBForm" >
+            {% csrf_token %}
+            Camera Type<br>
+            <select name="cameraUSB" class="form-control" id="USBID">
+                     <option value="2"> USB Camera</option>
+                     <option value="{% url 'Interface-new_channel' %}"> IP Camera</option>
+            </select></br>
+         
+           <fieldset class="form-group">
+              <ul> 
+                <div class="form-group USBcamera">
+                      <label class="col-sm-3 control-label">Description</label>
+                      <div class="col-sm-6">
+                        <input type="text" class="form-control" name="description" maxlength="128" id="description" required pattern="[a-zA-Z0-9\.\-_]+">
+                        {{ form.errors.description }}
+                      </div></br>
+                      <div class="col-sm-6">
+                        Enabled <input type="checkbox" class="form-control" name="enabled" maxlength="5" id="enabled">
+                      </div> 
+                </div>   
+                  </ul>
+            </fieldset>
+
+       <label>Camera Usages:</label> 
+              <div class = box5>
+              </div>
+               <a href="{% url 'Interface-zone' object.camera.id %}" class="btn btn-outline-info" style="height: 27px; width: 400px;background-color: salmon; border-color: black;" type="submit">Select Zone area to grab</a><br>
+               
+                    <small>Zone area used to grab the area for recongnition,</ul>
+                    <ul>the unselected area will be ignored</ul></small>
+               
+            <div class="form-group">
+                <a href="{% url 'Interface-channel' %}" class="btn btn-outline-info" style="height: 30px; width: 120px;background-color:#cbd5db;border-color: black;"type="button">Cancel</a>       
+                <button class="btn btn-primary" style="background-color: #cbd5db;width: 120px;height: 30px;" type="submit">Add Channel</button>
+            </div>
+        </form>
+        </div>
+      </div>
+    </section>
+
+
+{% endblock content %}
+{% block extrascripts %}
+    <script type="text/JavaScript" src="{%  static 'js/hideUSB.js' %}"></script>
+{% endblock %}
+

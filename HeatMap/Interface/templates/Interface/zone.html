@@ -1,0 +1,708 @@
+{% extends "Interface/base.html" %}
+{% load i18n %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% block content %}
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-8" style="position: relative;">
+        <canvas id="imageCanvas" class="zone-canvas-style" style="z-index: 6;" width="700px" height="500px"></canvas>
+        <canvas id="myCanvas" class="zone-canvas-style" style="z-index: 7;" width="700px" height="500px"></canvas>
+        <canvas id="arrowCanvas" style="z-index:8;position: relative; left:-14px" width="700px" height="500px"></canvas>
+        <!-- <canvas id="highlit"  class="zone-canvas-style" style="z-index: 8; " width="700px" height="500px"></canvas> -->
+      </div>
+      <div class="col-md-3">
+        <div id="Menu1" class="row context-menu mb-2">
+          <div class="form-group">
+            <label style="font-size:15px">
+              {% get_current_language as LANGUAGE_CODE %}
+              {% if LANGUAGE_CODE == 'en' %}
+              Enter zone name
+              {%else%}
+              Establecer nombre de la zona
+              {%endif%}
+            </label>
+            <input class="form-control" type="text" id="name">
+          </div>
+          <button id="ok" class="btn btn-primary btn-sm mr-2" type="button">
+            Ok
+          </button>
+          <button id="cancel" class="btn btn-outline-primary btn-sm" type="button">
+            {% if LANGUAGE_CODE == 'en' %}
+            Cancel
+            {%else%}
+            Cancelar
+            {%endif%}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="container">
+    <div class="row mb-3" style="color:#535794">
+      <small>
+        <b>
+          {% if LANGUAGE_CODE == 'en' %}
+          Use mouse to select the points of the zone area and right click
+          the mouse button when you are done.
+          {%else%}
+          Utilice el mouse para seleccionar los puntos del área o zona específica y haga clic con el botón derecho del
+          mouse cuando haya terminado.
+          {%endif%}
+        </b>
+      </small>
+    </div>
+    <div class="row">
+      <div class="col">
+        <div class="row">
+          <label><b>
+              {% if LANGUAGE_CODE == 'en' %}
+              Current Mouse Position:
+              {%else%}
+              Posición actual del mouse:
+              {%endif%}
+            </b></label>
+        </div>
+        <div class="row" style="color:#535794">
+          <p id="current-coordinates">None</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- display and update current coordiates -->
+<div class="container">
+  <div class="row">
+    <div class="col-4">
+      <div class="row">
+        <p><b>
+            {% if LANGUAGE_CODE == 'en' %}
+            Current Areas:
+            {%else%}
+            Áreas actuales:
+            {%endif%}
+          </b></p>
+      </div>
+      <div class="row">
+        <div id="polyList"></div>
+      </div>
+    </div>
+
+    <div class="col">
+      <div class="row ">
+        <div class="col-3">
+          <p>
+            <b>
+              {% if LANGUAGE_CODE == 'en' %}
+              Current Directions:
+              {%else%}
+              Drecciones actuales:
+              {%endif%}
+            </b>
+          </p>
+        </div>
+        <div class="col-3">
+          <button onclick="genStarts()" class="btn btn-white btn-sm">Gen starts</button>
+        </div>
+
+
+      </div>
+      <div id="directionList">
+
+      </div>
+      <div class="row">
+        <div class="col-3">
+          <button class="btn btn-success btn-sm mr-1" onclick="drawArrow()" id="arrowBtn">Draw Directions</button>
+        </div>
+        <div class="col-2">
+          <button class="btn btn-outline-success btn-sm hide" onclick="cancelDrawing()" id="arrowCancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="container">
+  <div class="row">
+    <div class="col pl-0">
+      <form enctype="multipart/form-data" action="" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="hide">{{form.names}}</div>
+        <div class="hide">{{form.directions}}</div>
+        <div class="hide">{{form.coordinates}}</div>
+        <div class="form-group mt-5">
+          <a href="javascript:history.go(-1)" class="ml-0 btn btn-white wave-effect text-primary" type="submit">
+
+            {% if LANGUAGE_CODE == 'en' %}
+            Cancel
+            {%else%}
+            Cancelar
+            {%endif%}
+          </a>
+          <button class="btn btn-warning" id="reset">
+            {% if LANGUAGE_CODE == 'en' %}
+            Reset
+            {%else%}
+            Eliminar
+            {%endif%}
+          </button>
+          <!-- <a href="{% url 'Interface-zoneedit' %}" class="btn btn-info" type="submit">Edit Zone Area</a> -->
+          <button class="btn btn-primary" id="zonesubmit" type="submit">Ok</button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock content %}
+
+{% block extrascripts %}
+
+
+<!-- Arrow Drawing feature -->
+<script type="text/javascript">
+
+  var arrowBtn = document.getElementById("arrowBtn");
+  var cancelArrow = document.getElementById("arrowCancel");
+  var arrowCanvas = document.getElementById("arrowCanvas");
+  arrowCanvas.classList.add("disable-canvas");
+  var arrowCtx = arrowCanvas.getContext("2d");
+  var arrowCanvasData = arrowCtx.getImageData(0, 0, arrowCanvas.width, arrowCanvas.height);
+
+  arrowCtx.lineWidth = 2;
+  arrowCtx.strokeStyle = "#FFD700";
+
+  var arrows = [];
+  if ((document.getElementById("id_directions").value)) {
+
+    arrows = JSON.parse(document.getElementById("id_directions").value);
+    console.log("arrow");
+    console.log(arrows);
+  }
+  $(document).ready(function () {
+    loadDirections(arrows, arrowCtx);
+    refreshDirectionList(arrows);
+  });
+
+
+  function drawArrowPoint() {
+    console.log("draw arrows");
+    var x = event.offsetX;
+    var y = event.offsetY;
+    arrowCtx.beginPath();
+    arrowCtx.moveTo(x, y);
+    arrowCtx.lineTo(x + 1, y + 1);
+    arrowCtx.stroke();
+    var arrowLen = arrows.length;
+    console.log("The length is " + arrowLen);
+    if (arrows[arrowLen - 1]) {
+      if (arrows[arrowLen - 1].length === 1) {
+        arrows[arrowLen - 1].push([x, y]);
+        joinArrowPoints(arrowCtx, arrows[arrowLen - 1][0], arrows[arrowLen - 1][1])
+        appendDirectionList(arrowLen - 1, arrows[arrowLen - 1]);
+      }
+      else {
+        arrows.push([[x, y]]);
+      }
+    }
+    else {
+      arrows.push([[x, y]]);
+    }
+    console.log(arrows);
+  }
+
+  arrowCanvas.addEventListener("click", drawArrowPoint, false);
+
+  //Invoke drawing action for directions
+  function drawArrow() {
+    canvas.classList.add("disable-canvas");
+    $("#arrowCancel").show();
+    arrowCanvas.classList.remove("disable-canvas");
+  }
+
+  //Effect after clicking cancel of Drawing direction
+  function cancelDrawing() {
+    console.log("cancel draw arrow");
+    canvas.classList.remove("disable-canvas");
+    arrowCanvas.classList.add("disable-canvas");
+    $("#arrowCancel").hide();
+  }
+  refreshDirectionCanvas = (lst) => {
+    arrowCtx.putImageData(arrowCanvasData, 0, 0);
+    loadDirections(lst, arrowCtx)
+  }
+
+  refreshHighLitCanvas = (lst) => {
+    highLitCxt.putImageData(arrowCanvasData, 0, 0);
+    loadDirections(lst, arrowCtx);
+  }
+  appendDirectionList = (index, lst) => {
+    console.log("index is " + index);
+    console.log("list append" + lst);
+    result = '<div class="row mb-2" id="' + index + '"><div class="col-3"><button class="btn btn-sm btn-elegant text-warning index-btn" onClick="highLit(this)"><b>Index: ' + index + '</b></button></div><div class="col"><button class="btn btn-sm btn-outline-danger" onclick="deleteDirection(this)"> remove</button></div></div > ';
+    document.getElementById("directionList").innerHTML += result;
+  }
+  deleteDirection = (e) => {
+    var targetIndex = e.parentNode.parentNode.id;
+    arrows.splice(targetIndex, 1);
+    document.getElementById("directionList").innerHTML = "";
+    refreshDirectionList(arrows);
+    refreshDirectionCanvas(arrows);
+  }
+
+  //highlight the direction arrow that is selected by clicking index button
+  highLit = (e) => {
+    var target = e.parentNode.parentNode.id;
+    refreshDirectionCanvas(arrows);
+    arrowCtx.strokeStyle = "#ff6347";
+    console.log("you are highlighting index: " + target);
+    console.log(arrows[target]);
+    joinArrowPoints(arrowCtx, arrows[target][0], arrows[target][1]);
+    arrowCtx.strokeStyle = "#FFD700";
+  }
+
+  refreshDirectionList = (lst) => {
+    document.getElementById("directionList").innerHTML = "";
+    for (let i = 0; i <= lst.length - 1; i++) {
+      appendDirectionList(i, lst[i]);
+    }
+  }
+
+
+
+
+</script>
+
+<!-- generate Rectangel -->
+<script>
+  if ((document.getElementById("id_directions").value)) {
+    tempDirectionCoordinates = JSON.parse(document.getElementById("id_directions").value);
+  }
+  function genStarts() {
+    const startX = [];
+    const startY = [];
+   
+    for (directCoords of tempDirectionCoordinates) {
+      startX.push(directCoords[0][0]);
+      startY.push(directCoords[0][1]);
+    
+    }
+    var maxX= Math.max(...startX);
+    var minX = Math.min(...startX);
+    var maxY = Math.max(...startY);
+    var minY = Math.min(...startY);
+
+    
+
+    maxX=(maxX+50>700)?700:maxX+50;
+    minX=(minX-50<0)?0:minX-50;
+    maxY=(maxY+50>500)?500:maxY+50;
+    minY=(minY-50<0)?0:minY-50;
+
+    arrowCtx.strokeStyle = "red";
+    arrowCtx.beginPath();
+    arrowCtx.moveTo(minX, minY);
+    arrowCtx.lineTo(maxX,minY);
+    arrowCtx.lineTo(maxX, maxY);
+    arrowCtx.lineTo(minX,maxY);
+    // if(minX-50<0){
+    //   if(minY-50<0){
+    //     arrowCtx.moveTo(1, 1);
+    //   }
+    //   else{
+    //     arrowCtx.moveTo(1, minY-50);
+    //   }
+    // }
+    // else{
+    //   arrowCtx.moveTo(minX-50, minY-50);
+    // }
+    
+    // if(maxX+50> 700){
+    //   if(minY-50<0){
+    //     arrowCtx.lineTo(700, 1);
+    //   }
+    //   else{
+    //     arrowCtx.lineTo(700,minY-50);
+    //   }
+    // }
+    // else{
+    //   arrowCtx.lineTo(maxX+50, minY-50);
+    // }
+    // if(maxX+50> 700){
+    //   if(maxY+50>500){
+    //     arrowCtx.lineTo(700,500);
+    //   }
+    //   else{
+    //     arrowCtx.lineTo(700,maxY+50);
+    //   }
+    // }
+    // else{
+    //   arrowCtx.lineTo(maxX+50, maxY+50);
+    // }
+
+    // if(minX-50<0){
+    //   if(maxY+50>700){
+    //     arrowCtx.lineTo(1,700);
+    //   }
+    //   else{
+    //     arrowCtx.lineTo(1,maxY+50);
+    //   }
+    // }
+    // else{
+    //   arrowCtx.lineTo(minX-50, maxY+50);
+    // }
+    
+    arrowCtx.closePath();
+    // arrowCtx.lineTo(minX-100, minY-100);
+    arrowCtx.stroke();
+    genEnds();
+    arrowCtx.strokeStyle = "#FFD700";
+ 
+  }
+  
+  function genEnds() {
+    const endX = [];
+    const endY = [];
+    for (directCoords of tempDirectionCoordinates) {
+      endX.push(directCoords[1][0]);
+      endY.push(directCoords[1][1]);
+    }
+    var endMaxX = Math.max(...endX);
+    var endMinX = Math.min(...endX);
+    var endMaxY = Math.max(...endY);
+    var endMinY = Math.min(...endY);
+    endMaxX=(endMaxX+50>700)?700:endMaxX+50;
+    endMinX=(endMinX-50<0)?0:endMinX-50;
+    endMaxY=(endMaxY+50>500)?500:endMaxY+50;
+    endMinY=(endMinY-50<0)?0:endMinY-50;
+    arrowCtx.strokeStyle = "#fff";
+    arrowCtx.beginPath();
+    arrowCtx.moveTo(endMinX, endMinY);
+    arrowCtx.lineTo(endMaxX, endMinY);
+    arrowCtx.lineTo(endMaxX, endMaxY);
+    arrowCtx.lineTo(endMinX, endMaxY);
+    arrowCtx.lineTo(endMinX, endMinY);
+    arrowCtx.stroke();
+    arrowCtx.strokeStyle = "#FFD700";
+  }
+
+</script>
+
+<script type="text/javascript">
+  //data from backend
+  var coordinatesArray = document.getElementById("id_coordinates");
+  var directions = document.getElementById("id_directions");
+  var names = document.getElementById("id_names");
+  console.log("coordinates from backend data: ", typeof (coordinatesArray.value), coordinatesArray.value, "The length is ", coordinatesArray.value.length);
+  var testData;
+  if (coordinatesArray.value.length > 0) {
+    testData = JSON.parse(coordinatesArray.value);
+  }
+  else {
+    testData = [];
+  }
+
+
+  if (testData.length > 0) {
+    polygonsArray = testData;
+
+  }
+  else {
+    polygonsArray = [];
+  }
+
+  $('#zonesubmit').click(function () {
+
+    coordinatesArray.value = JSON.stringify(polygonsArray);
+    names.value = JSON.stringify([]);
+    directions.value = JSON.stringify(arrows);
+  })
+
+
+  //Basic variables
+
+  console.log('{{ form.coordinates.value }}');
+  var ploysLength = polygonsArray.length;
+  var points = [];
+  //img canvas, place on lower layer
+  var imgCanvas = document.getElementById("imageCanvas");
+  var imgCxt = imgCanvas.getContext("2d");
+  loadImg();
+
+  //drawing canvas
+  var canvas = document.getElementById("myCanvas");
+  var ctx = canvas.getContext("2d");
+  ctx.lineWidth = 2;
+  ctx.font = "600 13px Georgia";
+  ctx.fillStyle = "#ADFF2F";
+  ctx.strokeStyle = "#ADFF2F";
+  const rect = canvas.getBoundingClientRect();
+  var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  var done = false;
+  var polyList = document.getElementById("polyList");
+  canvas.addEventListener("mousemove", showCoords, false);
+  canvas.addEventListener("click", drawDot, false);
+  canvas.addEventListener("contextmenu", finishSelection, false);
+  window.addEventListener("load", loadBasicInfo, false);
+
+  function loadBasicInfo() {
+    loadPolygons(polygonsArray);
+    loadInfoList();
+  }
+  // pop out text input handling.
+  $("#cancel").click(function () {
+    polygonsArray.pop();
+    refreshCanvas();
+    $("#Menu1").hide();
+    canvas.classList.remove("disable-canvas");
+  });
+
+  $("#ok").click(function () {
+    var currentPoly = polygonsArray[polygonsArray.length - 1];
+    console.log("current poly is", currentPoly);
+    var input = document.getElementById("name").value;
+    if (input.length > 0) {
+      if (duplicateCheck(input)) {
+        alert("The name is existing");
+      }
+      else {
+        console.log("ok");
+        console.log(input);
+        currentPoly.zoneName = input;
+        ctx.fillText(currentPoly.zoneName, currentPoly.center.x - 15, currentPoly.center.y);
+        $("#Menu1").hide();
+        canvas.classList.remove("disable-canvas");
+        // test = null;
+        polyList.innerHTML += appendNode(currentPoly);
+      }
+
+    }
+    else {
+      alert("Please enter the zone name");
+    }
+  });
+  //clean all datas when  click reset button
+  $("#reset").click(function (e) {
+    e.preventDefault();
+    polygonsArray = [];
+    refreshCanvas();
+    refreshList();
+    console.log("data clean");
+  });
+
+  function edit(e) {
+    // Show sibling buttons :remove save
+    e.parentNode.previousSibling.style.display = "block";
+    e.parentNode.previousSibling.previousSibling.style.display = "block";
+    e.parentNode.style.display = "none";
+    e.parentNode.previousSibling.previousSibling.previousSibling.childNodes[0].disabled = false;
+  }
+  function remove(e) {
+    var target = e.parentNode.previousSibling.childNodes[0].defaultValue.trim();
+    console.log("the target you are removing", target);
+    for (let item of polygonsArray) {
+      if (item.zoneName === target) {
+        var itemIndex = polygonsArray.indexOf(item);
+        polygonsArray.splice(itemIndex, 1);
+      }
+    }
+    refreshCanvas();
+    refreshList();
+    // e.parentNode.parentNode.parentNode.removeChild(e.parentNode.parentNode);
+  }
+  function save(e) {
+    e.parentNode.previousSibling.style.display = "none";
+    e.parentNode.style.display = "none";
+    e.parentNode.nextSibling.style.display = "block";
+    e.parentNode.previousSibling.previousSibling.childNodes[0].disabled = true;
+    //Get the value in current Target's input box
+    var currentValue = e.parentNode.previousSibling.previousSibling.childNodes[0].defaultValue;
+    var updateValue = e.parentNode.previousSibling.previousSibling.childNodes[0].value;
+    if (updateValue.length > 0) {
+      for (let item of polygonsArray) {
+        if (item.zoneName.trim() === currentValue.trim()) {
+          if (duplicateCheck(updateValue)) {
+            alert("The name is existing");
+            refreshList();
+            refreshCanvas();
+
+          }
+          else {
+            item.zoneName = updateValue;
+            console.log("update zone name", item.zoneName);
+            console.log("update zone", item);
+
+            refreshCanvas();
+            refreshList();
+          }
+        }
+      }
+    }
+    else {
+      alert("Can not enter empty name");
+      refreshList();
+    }
+
+  }
+
+
+  function appendNode(currentPoly) {
+    var result = '<div class="form-group row"><div class="col-4 "><input type="text" class="form-control" value="' + currentPoly.zoneName + ' " disabled></div><div class="col-2 mr-2 hide"><button onclick="remove(this)" type ="button" class="btn btn-sm btn-outline-danger mt-1" >{% get_current_language as LANGUAGE_CODE %}{% if LANGUAGE_CODE == 'en' %}Remove{%else%}Quitar{%endif%}</button></div><div class="col-2 ml-4 hide"><button class="btn btn-sm btn-primary mt-1" type ="button" onclick="save(this)">{% if LANGUAGE_CODE == 'en' %}Save{%else%}Guardar{%endif%}</button></div><div class="col-1 ml-2"><button class="btn btn-sm btn-info mt-1" type ="button" onclick="edit(this)">{% if LANGUAGE_CODE == 'en' %} Edit {%else%} Editar {%endif%} </button></div></div>';
+    return result;
+
+  }
+
+  duplicateCheck = (v) => {
+    for (let item of polygonsArray) {
+      if (item.zoneName.trim() == v.trim()) {
+        return true;
+      }
+    }
+  }
+  refreshCanvas = () => {
+    ctx.putImageData(imageData, 0, 0);
+    //reload polygons after poly array updates.
+    loadPolygons(polygonsArray);
+  };
+
+  refreshList = () => {
+    polyList.innerHTML = "";
+    for (let item of polygonsArray) {
+      polyList.innerHTML += appendNode(item);
+    }
+  }
+
+  //display current coordinates
+  //line tracing path should be displayed when mouse move
+  function showCoords(event) {
+    var x = event.offsetX;
+    var y = event.offsetY;
+    //
+    // var x = event.clientX -rect.left;
+    // var y = event. clientY - rect.top;
+    var coords = "<b>X:</b> " + x + ", <b>Y:</b>  " + y;
+    document.getElementById("current-coordinates").innerHTML = coords;
+
+    // loadPolygons(polygonsArray);
+    //we need tracing line
+    lastClick = points[points.length - 1];
+    if (lastClick && done == false) {
+      ctx.beginPath();
+      ctx.moveTo(lastClick[0], lastClick[1]);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      // loadPolygons(polygonsArray);
+      if (lastClick[0] != x && lastClick[1] != y) {
+        //clean tracing lines and reload original data
+        // still need to figure out the flashing problem
+        setTimeout(function () {
+          refreshCanvas();
+          loadPoints(points);
+        }, 10);
+      }
+    }
+  }
+
+  function drawDot() {
+    var x = event.offsetX;
+    var y = event.offsetY;
+    //create new item in polygonsAarray
+    // temp = currentPolygon(polygonsArray);
+    // console.log(temp);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + 1, y + 1);
+    ctx.stroke();
+    points.push([Math.round(x), Math.round(y)]);
+    // console.log("in drawDot",polygonsArray)
+  }
+  // auto finish the connections of existing points
+  // pop out text editer for naming the zone
+  function finishSelection(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (done == false && points.length > 2) {
+      ctx.beginPath();
+      //loop to last point list you are working
+      // currentPoly = polygonsArray[polygonsArray.length-1];
+      for (i = 0; i < points.length - 1; i++) {
+        ctx.moveTo(points[i][0], points[i][1]);
+        ctx.lineTo(points[i + 1][0], points[i + 1][1]);
+      }
+      ctx.lineTo(points[0][0], points[0][1]);
+      ctx.stroke();
+      done = true;
+
+      //Pop out text box after finishing draw
+      //Disable canvas while entering text, finish it later
+      $('#Menu1').show();
+      canvas.classList.add("disable-canvas");
+
+      var name = " ";
+      temp = { "points": points, "done": done, "center": get_polygon_centroid(points), "zoneName": name };
+      // console.log("finished points", points);
+      polygonsArray.push(temp);
+      // console.log(ploysLength);
+      ctx.fillText(temp.zoneName, temp.center.x - 15, temp.center.y);
+      points = [];
+      // console.log("temp is", temp);
+      // console.log("currentpolygons:", polygonsArray);
+      // console.log("current points is ", points);
+      done = false;
+    }
+  }
+  //reload poins/lines and display them on convas
+  function loadPoints(points) {
+    ctx.beginPath();
+    for (i = 0; i < points.length - 1; i++) {
+      ctx.moveTo(points[i][0], points[i][1]);
+      ctx.lineTo(points[i + 1][0], points[i + 1][1]);
+    }
+    ctx.stroke()
+  }
+  function loadPolygons(arr) {
+    // console.log("hi ", arr[0].points[0]);
+    // var testCenter = get_polygon_centroid(arr[0].points);
+    // console.log("the centroid is ", testCenter);
+    // ctx.font = "20px Arial";
+    // ctx.fillText("Zone 1", testCenter.x - 20, testCenter.y);
+    for (let item of arr) {
+      temp = item.points;
+      // console.log(temp);
+      // console.log("temp center is ", item.center);
+      ctx.beginPath();
+      ctx.moveTo(temp[0][0], temp[0][1]);
+      for (let i = 1; i < temp.length; i++) {
+        ctx.lineTo(temp[i][0], temp[i][1]);
+      }
+      ctx.lineTo(temp[0][0], temp[0][1]);
+      ctx.stroke();
+      // ctx.fill();
+      ctx.fillText(item.zoneName, item.center.x - 15, item.center.y);
+      // ctx.closePath();
+    }
+  }
+
+  //draw required image to new canvas
+  function loadImg() {
+    var image = new Image();
+    image.onload = function () {
+      imgCxt.drawImage(image, 0, 0, canvas.width, canvas.height);
+    };
+    // image.src = "{{ object.camera.rtsp_url.url }}";
+    image.src = '/media/images/{{object.id}}/{{object.description}}.jpg';
+  }
+  //Display list of polygons into specific div
+  //name, center of coordinates, remove button
+  function loadInfoList() {
+    console.log("current polygons list", polygonsArray);
+    for (let item of polygonsArray) {
+      polyList.innerHTML += appendNode(item);
+    }
+  };
+
+
+</script>
+
+{% endblock %}

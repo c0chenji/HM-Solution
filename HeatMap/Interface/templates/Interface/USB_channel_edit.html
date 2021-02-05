@@ -1,0 +1,98 @@
+{% extends "Interface/base.html" %}
+{% block content %}
+{% load i18n %}
+<section>
+  <div class="row justify-content-center">
+    <div class="col-5">
+      <form enctype="multipart/form-data" class="needs-validation" action="" name="edit" method="POST" id="USBchannelEditForm" novalidate>
+        {% csrf_token %}
+        {% get_current_language as LANGUAGE_CODE %}
+        <div class="form-row">
+          
+            <div class="col pl-0">
+              <label> {% if LANGUAGE_CODE == 'en' %}
+                Description*
+                {%else%}
+                Descripción*
+                {%endif%}</label>
+              <input type="text" class="form-control" value="{{form.description.value}}"name="description" maxlength="128" id="description"  pattern="[a-zA-Z0-9\.\-_]+" required>
+              <div class="valid-feedback">
+                Valid
+              </div>
+              <div class="invalid-feedback">
+                Please enter a valid description
+              </div>
+          
+            
+          </div>
+<!--     
+          {% if LANGUAGE_CODE == 'en' %}
+          Description
+          {%else%}
+          Descripción
+          {%endif%}
+          
+          {{ form.description }}
+          {{ form.errors.description }} -->
+        </div>
+        <div>
+          {% if LANGUAGE_CODE == 'en' %}
+          Enabled
+          {%else%}
+          Habilitar
+          {%endif%}
+    
+          {{ form.enabled }}
+        </div>
+        <div class="form-row">
+          <label>
+            {% if LANGUAGE_CODE == 'en' %}
+            Camera Usages:
+            {%else%}
+            Usos de la cámara
+            {%endif%}
+          </label>
+          <input class="form-control" type="text">
+        </div>
+        <div>
+          <a href="{% url 'Interface-zone' channel.id %}" class="ml-0 btn btn-info" type="submit">
+            
+            {% if LANGUAGE_CODE == 'en' %}
+            Select Zone area to grab
+            {%else%}
+            Seleccione el área o zona específica a utilizar
+            {%endif%}
+          </a>
+        </div>
+        <small class="form-text">
+          {% if LANGUAGE_CODE == 'en' %}
+          Zone area used to grab the area for recongnition,
+          the unselected area will be ignored
+          {%else%}
+          El área o zona específica seleccionada para establecer el área de reconocimiento. El área no seleccionada, será ignorada. 
+          {%endif%}
+        </small>
+        <div>
+          <a href="{% url 'Interface-channel' %}" class="ml-0 btn btn-white wave-effect text-primary" type="button">
+            
+            {% if LANGUAGE_CODE == 'en' %}
+            Cancel
+            {%else%}
+            Cancelar
+            {%endif%}
+          </a>
+          <button class=" btn btn-primary" type="submit">
+            
+            {% if LANGUAGE_CODE == 'en' %}
+            Update
+            {%else%}
+            Actualizar
+            {%endif%}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</section>
+{% endblock content %}

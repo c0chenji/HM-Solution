@@ -1,0 +1,69 @@
+{% extends "Interface/base.html" %}
+{% load crispy_forms_tags %}
+{% load i18n %}
+{% block content %}
+<div class="section" style="height: 100vh;">
+  <div class="row justify-content-center">
+    <div class="col-5" style="position: absolute;
+    top: 20%;">
+      <div class="container">
+        <form method="POST" id="login-form" class="needs-validation" novalidate>
+          {% csrf_token %}
+          <fieldset class="form-group">
+            <legend class="border-bottom mb-4">
+              {% get_current_language as LANGUAGE_CODE %}
+              {% if LANGUAGE_CODE == 'en' %}
+              Log In
+              {%else%}
+              Iniciar sesión
+              {%endif%}
+            </legend>
+            {{ form|crispy }}
+          </fieldset>
+  
+  
+        </form>
+        <div class="row justify-content-center">
+          <div class="col-3">
+            <form class="form" style="margin-top:6px" action="{% url 'change_language' %}" method="post">
+              {% csrf_token %}
+              <select name="language" class="browser-default custom-select" onchange="this.form.submit()">
+  
+                {% get_current_language as LANGUAGE_CODE %}
+                {% if LANGUAGE_CODE == 'en' %}
+                <option value="en" selected>
+                  English(en)
+                </option>
+                <option value="es">
+                  Español(es)
+                </option>
+                {% else %}
+                <option value="es" selected>
+                  Español(es)
+                </option>
+                <option value="en">
+                  English(en)
+                </option>
+                {% endif %}
+  
+              </select>
+            </form>
+          </div>
+          <div class="col-5"><button form="login-form" class="btn btn-primary ml-0" type="submit"><i
+                class="mr-2 fas fa-sign-in-alt"></i>{% get_current_language as LANGUAGE_CODE %}
+              {% if LANGUAGE_CODE == 'en' %}
+              Login
+              {%else%}
+              Iniciar sesión
+              {%endif%}</button>
+          </div>
+  
+  
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

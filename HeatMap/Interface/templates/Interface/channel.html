@@ -1,0 +1,114 @@
+{% extends "Interface/base.html" %}
+{% block content %}
+{% load i18n %}
+<section>
+   <form enctype="multipart/form-data" action="" name="edit" method="" id="ChannelForm">
+      {% csrf_token %}
+      <div class="container add-channel">
+         <a href="{% url 'Interface-new_channel' %}" class="btn btn-sm btn-outline-primary" type="submit">
+            <b>
+               <i class="mr-2 fas fa-plus-square"></i>
+               {% get_current_language as LANGUAGE_CODE %}
+               {% if LANGUAGE_CODE == 'en' %}
+               Add Channel
+               {%else%}
+               Agregar Canal
+               {%endif%}
+            </b></a>
+
+      </div>
+      <div class="container">
+         <table class="table" cellspacing="0">
+            {% for channel in channels %}
+            <tr>
+               <!-- <td>{{ channel.id}} </td> -->
+               {% if channel.IP %}
+               <td> <b>IP Camera</b> </td>
+               {% else %}
+               <td> <b>USB Camera</b></td>
+               {% endif %}
+               <td><b>{{ channel.IP }} </b> </td>
+               <td><b> {{ channel.description }} </b></td>
+
+               <td>
+                  {% if channel.IP %}
+                  <a href="{% url 'Interface-channel_edit' channel.id %}" class="btn btn-sm btn-outline-success"
+                     type="submit">
+                     <i class="mr-2 fas fa-edit"></i>
+                     {% get_current_language as LANGUAGE_CODE %}
+                     {% if LANGUAGE_CODE == 'en' %}
+                     edit
+                     {%else%}
+                     Editar
+                     {%endif%}
+
+                  </a>
+                  {% else %}
+                  <a href="{% url 'Interface-USBchanneledit' channel.id %}" class="btn btn-sm btn-outline-success"
+                     type="submit">
+                     <b>
+                        <i class="mr-2 fas fa-edit"></i>
+
+                        {% get_current_language as LANGUAGE_CODE %}
+                        {% if LANGUAGE_CODE == 'en' %}
+                        edit
+                        {%else%}
+                        Editar
+                        {%endif%}
+                     </b>
+                  </a>
+                  {% endif %}
+               </td>
+
+               <td>
+                  <a href="{% url 'Interface-channel_delete' channel.id %}" class="btn btn-sm btn-outline-danger"
+                     type="submit">
+                     <b>
+                        <i class="mr-2 fas fa-minus-square"></i>
+                        {% get_current_language as LANGUAGE_CODE %}
+                        {% if LANGUAGE_CODE == 'en' %}
+                        Delete
+                        {%else%}
+                        Eliminar
+                        {%endif%}
+                     </b>
+                     </button>
+               </td>
+
+               <td>
+                  {% if channel.enabled == 1 %}  
+                     <!-- <input type="checkbox" name="channel-enable" 
+                        id="id_enabled" value="{{ channel.enabled.value }}" checked disabled> -->
+                     <label class="text-success">
+                        <b>
+                           {% get_current_language as LANGUAGE_CODE %}
+                           {% if LANGUAGE_CODE == 'en' %}
+                           Enabled
+                           {%else%}
+                           Habilitar Canal
+                           {%endif%}
+                        </b>
+                     </label>
+                  {%else%}
+                  <!-- <input type="checkbox" name="channel-enable"  id="id_enabled"
+                     value="{{ channel.enabled.value }}" disabled> -->
+                  <label class="text-danger">
+                     <b>
+                        {% get_current_language as LANGUAGE_CODE %}
+                        {% if LANGUAGE_CODE == 'en' %}
+                        Disabled
+                        {%else%}
+                        Habilitar Canal
+                        {%endif%}
+                     </b>
+                  </label>
+                  {% endif %}
+
+               </td>
+            </tr>
+            {% endfor %}
+         </table>
+      </div>
+   </form>
+</section>
+{% endblock content %}

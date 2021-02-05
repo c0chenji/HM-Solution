@@ -1,0 +1,163 @@
+{% extends "Interface/base.html" %}
+{% load static %}
+{% block content %}
+<section>
+  <div class="row justify-content-center">
+    <div class="col-5">
+      <form enctype="multipart/form-data" class="needs-validation" action="{% url 'Interface-new_channel' %}"
+        name="edit" method="POST" role="form" id="ChannelCreateForm" novalidate>
+        {% csrf_token %}
+        
+        <div class="form-row">
+          <div class="col-md-12">
+            <label>Camera Type</label>
+            <select name="cameraOP" class="custom-select" id="cameraID">
+              <option value="1"> IP Camera</option>
+              <option href="/channel/usb"> USB Camera</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="col-md-6">
+            <label for="username">Username</label>
+            <input class="form-control invalid" type="text" name="username" id="username" required>
+            
+            <div class="valid-feedback">
+              Valid
+            </div>
+            {% if form.username.errors %}
+           
+            <div class="invalid-feedback">
+              Please enter a valid username
+            </div>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+
+            <label>Password</label>
+            <input type="password" name="password" class="form-control" maxlength="128" id="password"
+              pattern="[a-zA-Z0-9\.\-_]+" required>
+            <div class="valid-feedback">
+              Valid
+            </div>
+            <div class="invalid-feedback">
+              Please enter a valid password.
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="col-md-4">
+            <label>IP*</label>
+            <input type="text" class="form-control" onchange="checkIPUnique(this.id)" name="IP" maxlength="128" id="IP"
+              pattern="^(25[0-5]|2[0-4]\d|[0-1]?\d?[1-9]|[0-1]?[1-9][0])(\.(25[0-5]|2[0-4]\d|[0-1]?\d?\d)){3}$"
+              required>
+
+            <div id="IP-valid" class="valid-feedback">
+              Valid
+            </div>
+          
+            <div id="IP-invalid" class="invalid-feedback">
+              Please enter a valid IP
+            </div>
+          </div>
+          <div class="col-md-4">
+            <label>Port Number</label>
+            <input class="form-control" type="text" name="portNum" maxlength="5" id="portNum" pattern="[1-99999]+" required>
+          </div>
+          <div class="col-md-4">
+            <label>Camera Number</label>
+            <input type="text" class="form-control" name="cameraNum" maxlength="5" id="cameraNum" pattern="[1-999]+" required>
+          </div>
+        </div>
+
+
+        <div class="form-row">
+          <label>Camera Model*</label>
+          <select name="camera" class="custom-select" required id="id_camera_model">
+            <option value=""> None</option>
+            {% for camera in cameras.all %}
+            <option value="{{camera.pk}}"> {{ camera.camera_model }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label>Enabled</label>
+          <input type="checkbox" name="enabled" maxlength="5" id="enabled">
+        </div>
+
+        <div class="form-row">
+          <div class="col-md pl-0 pr-0">
+            <label>Description*</label>
+            <input type="text" class="form-control" name="description" maxlength="128" onchange="checkDescriptionUnique(this.id)" id="description"  pattern="[a-zA-Z0-9\.\-_]+" required>
+            
+            <div  id="description-valid"class="valid-feedback">
+              Valid
+            </div>
+            <div id="description-invalid" class="invalid-feedback">
+              Please enter a valid description
+            </div>
+          </div>
+          <!-- <div class="col-md-6 pr-0">
+            <label>Camera Usages:</label>
+          <input class="form-control" type="text">
+          </div> -->
+        </div>
+
+        <a href="" class="ml-0 btn btn-info" type="button">Select Zone area to grab</a></br>
+        <small>Zone area used to grab the area for recongnition,
+          the unselected area will be ignored
+        </small>
+
+        <div>
+          <a href="{% url 'Interface-channel' %}" class="ml-0 btn btn-white wave-effect text-primary" type="button">Cancel</a>
+          <button class="btn btn-primary" type="submit">Add Channel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</section>
+<script>
+function checkIPUnique(id){
+  const target = document.getElementById(id);
+  const targetFeedBack = target+"-invalid";
+  {% for object in channels%}
+    console.log(target.value);
+    if(target.value==""){
+      $("IP-valid").hide();
+      
+    }
+    if(target.value == '{{object.IP}}'){
+      console.log("yes");
+      target.className="form-control is-invalid";
+      $("IP-valid").hide();
+      return false;
+    }
+    
+  {% endfor %}
+  target.className="form-control is-valid";
+
+  return true;
+}
+
+function checkDescriptionUnique(id){ 
+  const target = document.getElementById(id);
+  const targetFeedBack = id+"-invalid";
+  {% for object in channels%}
+  if(target.value == '{{object.description}}'){
+    
+    target.className="form-control is-invalid";
+    return false;
+  }
+  {% endfor %}
+  target.className="form-control is-valid";
+  return true;
+}
+
+
+</script>
+{% endblock content %}
+<!-- {% block extrascripts %}
+<script type="text/JavaScript" src="{%  static 'js/hide-show-fields-form.js' %}"></script>
+{% endblock %} -->

@@ -1,0 +1,27 @@
+{% extends "Interface/base.html" %}
+{% block content %}
+{% load i18n %}
+<section>
+    <div class="row justify-content-center">
+        <div class="col-5">
+            <form method="POST" enctype="multipart/form-data">
+                {% get_current_language as LANGUAGE_CODE %}
+                {% if LANGUAGE_CODE == 'en' %}
+                <p>The channel was succesfully edited!</p>
+                {%else%}
+                <p>Canal editado con éxito.</p>
+                {%endif%}
+        
+                <a href="{% url 'Interface-channel' %}" class="ml-0 btn btn-white wave-effect text-primary" type="button">
+                    {% if LANGUAGE_CODE == 'en' %}
+                    Close
+                    {%else%}
+                    Cerrar
+                    {%endif%}
+                </a>
+            </form>
+        </div>
+    </div>
+   
+</section>
+{% endblock content %}

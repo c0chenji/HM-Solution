@@ -1,0 +1,20 @@
+{% extends "Interface/base.html" %}
+
+{% block content %}
+
+
+<div style="position:absolute;">
+    
+    <img id="displayScreen" style="position:relative;z-index: 8;" width="700" height="500"
+        src="{% url 'pause-live-stream-page' %}" alt="">
+
+    <!-- <canvas id="pauseScreen" style="position: relative;z-index:10;display:none " width="700" height="500"
+        style="border:1px solid #d3d3d3"></canvas> -->
+</div>
+<!-- <i id="loading" style="position:relative;z-index: 11; font-size: 100px;" class="fa fa-spinner fa-spin"></i> -->
+<script>
+    document.getElementById("recordBtn").classList.remove("greenLight");
+    document.getElementById("recordBtn").classList.add("redLight");
+    document.getElementById("pauseBtn").classList.add("icon-btn-focus");
+</script>
+{%endblock%}
