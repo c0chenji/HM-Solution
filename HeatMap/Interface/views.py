@@ -155,19 +155,12 @@ def distMap(frame1, frame2):
 	return dist
 
 def saveDirection(id, link):
-    # detectionSampleFile = settings.MEDIA_ROOT + "/carDetectionSample/cars.xml"
-    # car_cascade = cv2.CascadeClassifier(detectionSampleFile)
 
     target_dir = settings.MEDIA_ROOT + "/images/"+str(id)+"/"
     if (not os.path.isdir(target_dir)):
         os.makedirs(target_dir)
-    print("saving directions----------------------------------")
     # get default channel to save specific frame and heatmap
     defaultChannel = id
-    # defaultTopColor = "gray"
-    # defaultBottomColor = "red"
-    # defaultDwellingTime = 100
-    
     # access global value stop to conrol thread if required
     global stop
     frame_counter = 0
@@ -184,8 +177,7 @@ def saveDirection(id, link):
     # height 960
     height = vid.get(4) 
     x_scale = 700/width
-    y_scale = 500/height
-   
+    y_scale = 500/height 
     #load polygon coordinates data to array
     p = json.loads(Channel.objects.get(id=defaultChannel).coordinates)
     #load direction coordinates
@@ -453,13 +445,7 @@ def saveFrame(id, link):
     targetPolygons = json.loads(
         Channel.objects.get(id=defaultChannel).coordinates)
     adjustedTargetPolygons=targetPolygons
-    # targetStartRectangel= ???
-    # directions = json.loads(Channel.objects.get(id=defaultChannel).directions)
-    # print("direction is//////////////////////////////////////")
-    # print(directions)
-    # startRect = genRect(directions, 0)
-    # endRect = genRect(directions, 1)
-    # access global value stop to conrol thread
+
     global stop
     frame_counter = 0
     firstFrame = None
@@ -476,12 +462,8 @@ def saveFrame(id, link):
     for item in adjustedTargetPolygons:
         item["points"]=applyScale(item["points"],width/700,height/500)
     print("adjustedTarget zone is "+str(adjustedTargetPolygons))
-    # print("saveFrame globle stop is ", stop)
+
     while (not stop):
-        # vid=cv2.VideoCapture(
-        # "rtsp://207.194.135.17/axis-media/media.amp")
-        # define frame_height and frame_width
-        # print("the video size is{} {}".format(width, height))
         ret, frame = vid.read()
         # initialize frame counter and firstFrame
         if ret == True:
@@ -491,7 +473,7 @@ def saveFrame(id, link):
             recogFrame = frame.copy()
             frame_height = frame.shape[0]
             frame_width = frame.shape[1]
-            # print("frame h and frame w are"+str(frame_height)+str(frame_width))
+
             # convert to gray scale of each frames
             mask = np.zeros((frame_height, frame_width), dtype=np.uint8)
             for target in adjustedTargetPolygons:
@@ -737,115 +719,13 @@ def saveFrame(id, link):
                                                             topColor=str(top_avg_color_name),
                                                             bottomColor=str(bot_avg_color_name))
                                 tempHeatMapObject.save()
-                                # tempHeatMapObject = Heatmap(frame_id=Frame.objects.last().id,
-                                #                             topLeftX=x0,
-                                #                             topLeftY=y0,
-                                #                             width=int(w),
-                                #                             height=int(h),
-                                #                             dwellingTime=dwellingTime,
-                                #                             zoneArea=int(
-                                #                                 dwellZone),
-                                #                             topColor=defaultTopColor,
-                                #                             bottomColor=defaultBottomColor)
-                                # tempHeatMapObject.save()
+ 
                                 to.counted = True
 
                 # store the trackable object in our dictionary
                 trackableObjects[objectID] = to
                 cv2.rectangle(
                     frame, (centroid[2], centroid[3]), (centroid[4], centroid[5]), COLOR_PALLETE["TEAL"], 2)
-                # if to is not None:
-                #     if to.counted:
-                #         cv2.rectangle(frame,(centroid[2],centroid[3]), (centroid[4],centroid[5]), COLOR_PALLETE["RED"],2)
-
-            # # convert to gray scale of each frames
-            # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-            # cars = car_cascade.detectMultiScale(gray, 1.1, 1)
-            # # To draw a rectangle in each cars
-            # for (x, y, w, h) in cars:
-            #     # print("x is ", x, "y is ", y, "width is ", w, "height is ", h)
-            #     targetPoint = Point(x*x_scale, y*y_scale)
-
-            #     for item in targetPolygons:
-            #         index = targetPolygons.index(item)
-
-            #         targetZone = tuplefyItem(item["points"])
-            #         poly = Polygon(targetZone)
-
-            #         # calculate the four directions start points and do the programming on it
-            #         # flag check start point
-            #         # within start points --> flag == true
-            #         # start tracker , once the object stops , check object point within specific zone area
-            #         # check all end points in every zone area if the object stops in specific zone area insert data
-            #         # to direction table
-            #         startDirectPoly = Polygon(startRect)
-            #         endPoints = genEndPoints(directions)
-
-            #         if(targetPoint.within(startDirectPoly)):
-            #             directionFlag = True
-
-            #         for endPoint in endPoints:
-            #             print("endpoint is ....")
-            #             print(endPoint)
-
-            #             endPointResult = Point(endPoint[0],endPoint[1])
-            #             if (endPointResult.within(poly)):
-            #                 targetDirection = getDirectionsByEnds(directions, list(endPoint))
-            #                 #reset flag
-            #                 print("target directins is\\\\\\\\\\\\\\\\\\ ")
-            #                 print(targetDirection)
-            #                 directionFlag = False
-
-            #         if(targetPoint.within(poly)):
-            #             newImg = frame.copy()
-            #             cv2.rectangle(newImg, (x, y),
-            #                           (x+w, y+h), (0, 0, 255), 2)
-            #             # save frame and images
-            #             currenTime = timezone.now()
-            #             print(currenTime)
-            #             imageName = Channel.objects.get(
-            #                 id=defaultChannel).description + '.jpg'
-
-            #             filename = settings.MEDIA_ROOT + \
-            #                 "/images/"+str(id)+"/"+imageName
-            #             cv2.imwrite(filename, frame)
-            #             vid.release()
-
-            #             print(str(defaultChannel) + " : " +
-            #                   threading.current_thread().getName())
-            #             if str(defaultChannel) == threading.current_thread().getName():
-            #                 with lock:
-            #                     tempObject = Frame(
-            #                         channel_id=defaultChannel, img_name=imageName, captureTime=currenTime)
-            #                     tempObject.save()
-            #                     print("Channel: {0}, Zone: {1}, X:{2}, Y: {3}".format(
-            #                         str(defaultChannel), str(index + 1), str(int(x*x_scale)), str(int(y*y_scale))))
-            #                     tempHeatMapObject = Heatmap(frame_id=Frame.objects.last().id,
-            #                                                 topLeftX=int(
-            #                                                     x*x_scale),
-            #                                                 topLeftY=int(
-            #                                                     y*y_scale),
-            #                                                 width=int(w),
-            #                                                 height=int(h),
-            #                                                 dwellingTime=defaultDwellingTime,
-            #                                                 zoneArea=index+1,
-            #                                                 topColor=defaultTopColor,
-            #                                                 bottomColor=defaultBottomColor)
-            #                     tempHeatMapObject.save()
-            #                     tempDirectionObject = Direction(frame_id=Frame.objects.last().id,
-            #                                                    topLeftX=int(
-            #                                                        x*x_scale),
-            #                                                    topLeftY=int(
-            #                                                        y*y_scale),
-            #                                                    width=int(w),
-            #                                                    height=int(h),
-            #                                                    direction=str(targetDirection),
-            #                                                    topColor=defaultTopColor,
-            #                                                    bottomColor=defaultBottomColor)
-            #                     tempDirectionObject.save()
-            #                     print("saving directions")
-            #             # time.sleep(10)
 
 
 def change_language(request):
@@ -913,8 +793,7 @@ def channel(request):
 @login_required
 def Home(request):
     # stop playing live streaming in case redirecting to other pages
-    # global stop
-    # stop = True
+
     print(type(settings.INTERFACE_ROOT))
     channels = Channel.objects.all()
     form = ChannelCreateForm(request.POST)
@@ -1048,9 +927,7 @@ def heatmap_page(request):
         for channel in channels:
             if (channel.enabled == 1):
                 enabledList.append(channel)
-    # result= Heatmap.objects.prefetch_related('frame').prefetch_related('channel',queryset=Channel.object.filter(id=)))
-    # print(result.values())
-    # print("the default channel on heamap is ", defaultChannel)
+
 
     
     if(len(enabledList) > 0 and enabledList[0]):
